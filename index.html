@@ -1,1 +1,918 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Osein — Discord Moderator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300&display=swap" rel="stylesheet" />
+  <style>
 
+/* ═══════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   TOKENS — DARK (default)
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg:           #0a0a0a;
+  --bg2:          #111111;
+  --bg3:          #181818;
+  --surface:      rgba(255,255,255,0.03);
+  --surface-md:   rgba(255,255,255,0.06);
+  --border:       rgba(255,255,255,0.07);
+  --border-md:    rgba(255,255,255,0.13);
+  --text:         #e5e5e5;
+  --text-muted:   rgba(200,200,200,0.48);
+  --text-sub:     rgba(210,210,210,0.68);
+  --white:        #ffffff;
+  --shadow-card:  0 20px 50px rgba(0,0,0,0.38);
+  --glow-soft:    rgba(255,255,255,0.06);
+  --glow-mid:     rgba(255,255,255,0.13);
+  --noise-op:     0.028;
+  --blob-op:      1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOKENS — LIGHT
+═══════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:           #f5f5f5;
+  --bg2:          #efefef;
+  --bg3:          #e8e8e8;
+  --surface:      rgba(0,0,0,0.03);
+  --surface-md:   rgba(0,0,0,0.055);
+  --border:       rgba(0,0,0,0.08);
+  --border-md:    rgba(0,0,0,0.14);
+  --text:         #1a1a1a;
+  --text-muted:   rgba(30,30,30,0.52);
+  --text-sub:     rgba(30,30,30,0.72);
+  --white:        #0a0a0a;
+  --shadow-card:  0 20px 50px rgba(0,0,0,0.1);
+  --glow-soft:    rgba(0,0,0,0.04);
+  --glow-mid:     rgba(0,0,0,0.08);
+  --noise-op:     0.015;
+  --blob-op:      0.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════════ */
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+  transition: background .4s ease, color .4s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════════════════ */
+#cur-dot {
+  position: fixed; z-index: 9999;
+  width: 8px; height: 8px;
+  background: var(--text);
+  border-radius: 50%;
+  pointer-events: none;
+  top: 0; left: 0;
+  transform: translate(-50%,-50%);
+  transition: transform .1s ease, background .3s;
+  box-shadow: 0 0 10px 3px rgba(180,180,180,0.45);
+}
+#cur-ring {
+  position: fixed; z-index: 9998;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(160,160,160,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  top: 0; left: 0;
+  transform: translate(-50%,-50%);
+  transition: width .22s ease, height .22s ease, border-color .22s;
+}
+body.ch #cur-ring { width: 50px; height: 50px; border-color: rgba(180,180,180,0.7); }
+body.ch #cur-dot  { transform: translate(-50%,-50%) scale(1.7); }
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+/* ═══════════════════════════════════════════════════════════
+   BACKGROUND ATMOSPHERE
+═══════════════════════════════════════════════════════════ */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+  opacity: var(--blob-op);
+  transition: opacity .4s;
+}
+.bg-blob { position: absolute; border-radius: 50%; filter: blur(140px); }
+.bb1 {
+  width: 780px; height: 780px;
+  background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 65%);
+  top: -280px; left: -180px;
+}
+.bb2 {
+  width: 580px; height: 580px;
+  background: radial-gradient(circle, rgba(255,255,255,0.028) 0%, transparent 65%);
+  bottom: -180px; right: -140px;
+}
+.bb3 {
+  width: 460px; height: 460px;
+  background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
+  top: 55%; left: 50%; transform: translate(-50%,-50%);
+}
+.noise {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--noise-op);
+  transition: opacity .4s;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════════ */
+.container { max-width: 1060px; margin: 0 auto; padding: 0 34px; }
+section { position: relative; z-index: 2; padding: 106px 0; }
+.divider {
+  position: relative; z-index: 2; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-md) 40%, var(--border-md) 60%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TYPOGRAPHY HELPERS
+═══════════════════════════════════════════════════════════ */
+.tag {
+  display: inline-block;
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: 2.6px; text-transform: uppercase;
+  color: var(--text-sub); margin-bottom: 14px;
+}
+.section-title {
+  font-size: clamp(1.85rem, 3.6vw, 2.75rem);
+  font-weight: 800; letter-spacing: -1.2px; line-height: 1.14;
+  color: var(--white);
+}
+.section-desc {
+  font-size: .95rem; color: var(--text-muted);
+  line-height: 1.82; font-weight: 400;
+}
+.section-head { text-align: center; margin-bottom: 66px; }
+.section-head .section-title { margin-bottom: 13px; }
+.section-head .section-desc  { max-width: 500px; margin: 0 auto; }
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .87rem; font-weight: 600; letter-spacing: .25px;
+  border-radius: 10px; text-decoration: none; border: none;
+  transition: transform .22s ease, box-shadow .25s ease, background .22s, opacity .2s;
+  cursor: none; position: relative; overflow: hidden;
+}
+.btn-solid {
+  background: var(--white); color: var(--bg);
+  box-shadow: 0 0 22px rgba(180,180,180,0.12), 0 4px 16px rgba(0,0,0,0.35);
+}
+.btn-solid::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+  pointer-events: none;
+}
+.btn-solid:hover {
+  box-shadow: 0 0 38px rgba(200,200,200,0.22), 0 8px 26px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+.btn-ghost {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border-md);
+}
+.btn-ghost:hover {
+  background: var(--surface-md);
+  border-color: rgba(180,180,180,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px var(--glow-soft);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  padding: 22px 0;
+  border-bottom: 1px solid transparent;
+  transition: background .4s, border-color .4s, padding .3s, backdrop-filter .4s;
+}
+nav.scrolled {
+  background: rgba(10,10,10,0.82);
+  backdrop-filter: blur(24px) saturate(1.1);
+  -webkit-backdrop-filter: blur(24px);
+  border-color: var(--border);
+  padding: 14px 0;
+}
+[data-theme="light"] nav.scrolled { background: rgba(245,245,245,0.86); }
+
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.nav-logo {
+  font-size: 1.12rem; font-weight: 800; letter-spacing: -.4px;
+  color: var(--white); text-decoration: none; flex-shrink: 0;
+}
+.nav-logo em { font-style: normal; color: var(--text-muted); font-weight: 400; }
+.nav-links { display: flex; gap: 34px; list-style: none; }
+.nav-links a {
+  font-size: .82rem; font-weight: 500; color: var(--text-muted);
+  text-decoration: none; letter-spacing: .3px;
+  transition: color .2s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--text);
+  transform: scaleX(0); transform-origin: left; transition: transform .24s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+/* Nav controls cluster */
+.nav-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Theme toggle */
+.btn-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px; border: 1px solid var(--border-md);
+  background: var(--surface); color: var(--text-sub);
+  display: flex; align-items: center; justify-content: center;
+  cursor: none; transition: background .22s, border-color .22s, color .22s, transform .18s;
+  font-size: .82rem; font-weight: 600; flex-shrink: 0;
+}
+.btn-icon:hover {
+  background: var(--surface-md); border-color: rgba(180,180,180,0.22);
+  color: var(--white); transform: scale(1.08);
+}
+.btn-icon svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Language toggle */
+.lang-toggle {
+  display: flex; align-items: center;
+  border: 1px solid var(--border-md);
+  border-radius: 9px; overflow: hidden;
+  background: var(--surface);
+}
+.lang-btn {
+  padding: 7px 11px; font-size: .72rem; font-weight: 700; letter-spacing: .6px;
+  color: var(--text-muted); background: transparent; border: none;
+  cursor: none; transition: background .2s, color .2s;
+  font-family: 'Poppins', sans-serif;
+}
+.lang-btn.active { background: var(--surface-md); color: var(--white); }
+.lang-btn:hover:not(.active) { color: var(--text); }
+
+/* Hire me */
+.nav-cta { padding: 9px 20px; font-size: .82rem; }
+
+/* ═══════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════ */
+#home {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 148px 0 88px;
+}
+.hero-wrap {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 88px;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 6px 15px; border-radius: 100px;
+  border: 1px solid var(--border-md); background: var(--surface);
+  font-size: .7rem; font-weight: 600; letter-spacing: 1.3px;
+  text-transform: uppercase; color: var(--text-sub); margin-bottom: 26px;
+}
+.hero-eyebrow .live {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #aaa; box-shadow: 0 0 6px rgba(180,180,180,0.65);
+  animation: blink 2.2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero-title {
+  font-size: clamp(2.7rem, 5.3vw, 4.2rem);
+  font-weight: 800; letter-spacing: -2px; line-height: 1.07;
+  color: var(--white); margin-bottom: 10px;
+}
+.hero-title .thin {
+  display: block; font-weight: 300; font-style: italic;
+  color: var(--text-muted); font-size: .88em; letter-spacing: -1px;
+}
+.hero-sub {
+  font-size: .97rem; color: var(--text-muted);
+  line-height: 1.82; max-width: 490px; margin: 22px 0 40px;
+}
+.hero-actions { display: flex; gap: 13px; align-items: center; flex-wrap: wrap; }
+
+/* Avatar */
+.hero-av {
+  position: relative; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.av-glow {
+  position: absolute; inset: -28px; z-index: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.075) 0%, transparent 66%);
+  animation: glowpulse 4s ease-in-out infinite alternate;
+}
+@keyframes glowpulse { from{opacity:.55;transform:scale(1)} to{opacity:1;transform:scale(1.09)} }
+.av-orbit {
+  position: absolute; inset: -13px; z-index: 1;
+  border-radius: 50%; border: 1px solid rgba(200,200,200,0.11);
+  animation: spin 15s linear infinite;
+}
+.av-orbit::before {
+  content: '';
+  position: absolute; top: 50%; left: -4px; transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(200,200,200,0.65);
+  box-shadow: 0 0 8px rgba(200,200,200,0.55);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.av-img {
+  position: relative; z-index: 2;
+  width: 220px; height: 220px; border-radius: 50%; object-fit: cover;
+  border: 1.5px solid var(--border-md);
+  box-shadow: 0 0 0 8px rgba(255,255,255,0.022), 0 0 48px rgba(255,255,255,0.065), 0 22px 60px rgba(0,0,0,0.45);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════════════════════════ */
+#about { background: var(--bg2); }
+.about-grid { display: grid; grid-template-columns: 1fr 1.08fr; gap: 76px; align-items: center; }
+
+.about-cards { display: flex; flex-direction: column; gap: 14px; }
+.abt-card {
+  display: flex; align-items: flex-start; gap: 15px;
+  padding: 22px 20px; border-radius: 13px;
+  background: var(--surface); border: 1px solid var(--border);
+  transition: border-color .25s, background .25s, transform .25s;
+}
+.abt-card:hover {
+  border-color: var(--border-md); background: var(--surface-md); transform: translateX(4px);
+}
+.abt-ico {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border-radius: 9px; border: 1px solid var(--border);
+  background: var(--surface-md);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.abt-card h4 { font-size: .88rem; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.abt-card p  { font-size: .79rem; color: var(--text-muted); line-height: 1.65; }
+
+.about-copy { }
+.about-copy .section-title { margin-bottom: 20px; }
+.about-copy p {
+  color: var(--text-muted); font-size: .94rem; line-height: 1.85; margin-bottom: 17px;
+}
+.about-copy p strong { color: var(--text); font-weight: 600; }
+.about-copy p:last-of-type { margin-bottom: 34px; }
+
+/* ═══════════════════════════════════════════════════════════
+   SKILLS
+═══════════════════════════════════════════════════════════ */
+#skills { background: var(--bg); }
+.skills-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.sk-card {
+  padding: 30px 26px; border-radius: 15px;
+  background: var(--surface); border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  transition: transform .3s, border-color .3s, box-shadow .3s;
+}
+.sk-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,200,200,0.14), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.sk-card:hover { border-color: var(--border-md); transform: translateY(-5px); box-shadow: var(--shadow-card), 0 0 28px var(--glow-soft); }
+.sk-card:hover::after { opacity: 1; }
+.sk-ico {
+  width: 46px; height: 46px; border-radius: 11px;
+  background: var(--surface-md); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: 18px;
+}
+.sk-card h3 { font-size: .93rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.sk-card p  { font-size: .81rem; color: var(--text-muted); line-height: 1.72; }
+
+/* ═══════════════════════════════════════════════════════════
+   COMMUNITIES
+═══════════════════════════════════════════════════════════ */
+#communities { background: var(--bg2); }
+.comm-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
+  max-width: 860px; margin: 0 auto;
+}
+.comm-card {
+  display: block; text-decoration: none; color: inherit;
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border); background: var(--surface);
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s;
+}
+.comm-card:hover {
+  transform: translateY(-7px) scale(1.025);
+  border-color: var(--border-md);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.42), 0 0 22px var(--glow-mid);
+}
+.comm-img {
+  width: 100%; aspect-ratio: 1 / 1; overflow: hidden; display: block;
+}
+.comm-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .48s ease;
+}
+.comm-card:hover .comm-img img { transform: scale(1.07); }
+.comm-foot {
+  padding: 12px 14px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.comm-name { font-size: .8rem; font-weight: 600; color: var(--white); }
+.comm-arr {
+  width: 24px; height: 24px; border-radius: 6px;
+  border: 1px solid var(--border); color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem;
+  transition: background .22s, border-color .22s, color .22s;
+}
+.comm-card:hover .comm-arr { background: var(--white); border-color: var(--white); color: var(--bg); }
+
+/* ═══════════════════════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════════════════════ */
+#contact { background: var(--bg); }
+.contact-box {
+  border: 1px solid var(--border); border-radius: 22px;
+  padding: 76px 56px; text-align: center;
+  background: var(--surface); position: relative; overflow: hidden;
+}
+.contact-box::before {
+  content: ''; pointer-events: none;
+  position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+  width: 480px; height: 360px;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.04) 0%, transparent 65%);
+}
+.contact-box .section-title { margin-bottom: 13px; }
+.contact-box .section-desc  { max-width: 430px; margin: 0 auto 36px; }
+.contact-btns { display: flex; justify-content: center; gap: 13px; flex-wrap: wrap; }
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════ */
+footer {
+  position: relative; z-index: 2;
+  padding: 34px 0; border-top: 1px solid var(--border); text-align: center;
+}
+footer p { font-size: .77rem; color: var(--text-muted); letter-spacing: .2px; }
+
+/* ═══════════════════════════════════════════════════════════
+   REVEAL ANIMATIONS
+═══════════════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .62s cubic-bezier(.22,1,.36,1), transform .62s cubic-bezier(.22,1,.36,1);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 980px) {
+  .hero-wrap  { grid-template-columns: 1fr; gap: 52px; justify-items: center; text-align: center; }
+  .hero-sub   { margin-left: auto; margin-right: auto; }
+  .hero-actions { justify-content: center; }
+  .about-grid { grid-template-columns: 1fr; gap: 46px; }
+  .skills-grid { grid-template-columns: repeat(2,1fr); }
+  .comm-grid  { grid-template-columns: repeat(2,1fr); max-width: 480px; }
+}
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+}
+@media (max-width: 580px) {
+  .container  { padding: 0 20px; }
+  section     { padding: 76px 0; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .contact-box { padding: 50px 24px; }
+  .av-img     { width: 175px; height: 175px; }
+  .comm-grid  { grid-template-columns: repeat(2,1fr); max-width: 100%; }
+}
+
+  </style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- Atmosphere -->
+<div class="bg-layer"><div class="bg-blob bb1"></div><div class="bg-blob bb2"></div><div class="bg-blob bb3"></div></div>
+<div class="noise"></div>
+
+<!-- ══════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════ -->
+<nav id="nav">
+  <div class="container">
+    <div class="nav-inner">
+
+      <a href="#home" class="nav-logo">osein<em>.</em></a>
+
+      <ul class="nav-links">
+        <li><a href="#home"        data-i18n="nav.home">Home</a></li>
+        <li><a href="#about"       data-i18n="nav.about">About</a></li>
+        <li><a href="#skills"      data-i18n="nav.skills">Skills</a></li>
+        <li><a href="#communities" data-i18n="nav.communities">Communities</a></li>
+        <li><a href="#contact"     data-i18n="nav.contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-controls">
+
+        <!-- Theme toggle -->
+        <button class="btn-icon" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <!-- Moon icon (shown in dark mode) -->
+          <svg id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <!-- Sun icon (shown in light mode, hidden by default) -->
+          <svg id="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+
+        <!-- Language toggle -->
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
+          <button class="lang-btn"        id="lang-pt" data-lang="pt">PT</button>
+        </div>
+
+        <!-- CTA -->
+        <a href="https://discord.com/users/1077000858342006867" target="_blank" rel="noopener"
+           class="btn btn-solid nav-cta" data-i18n="nav.hire">Hire Me</a>
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<section id="home">
+  <div class="container">
+    <div class="hero-wrap">
+
+      <div>
+        <div class="hero-eyebrow reveal">
+          <span class="live"></span>
+          <span data-i18n="hero.badge">Available for work</span>
+        </div>
+        <h1 class="hero-title reveal" style="transition-delay:.08s">
+          Discord<br />Moderator
+          <span class="thin" data-i18n="hero.title.sub">&amp; Community Lead</span>
+        </h1>
+        <p class="hero-sub reveal" style="transition-delay:.16s" data-i18n="hero.desc">
+          Professional moderator with proven experience managing large-scale anime communities. I build safe, structured, and genuinely active spaces that members want to return to.
+        </p>
+        <div class="hero-actions reveal" style="transition-delay:.24s">
+          <a href="https://discord.com/users/1077000858342006867" target="_blank" rel="noopener" class="btn btn-solid">
+            <svg width="16" height="12" fill="none" viewBox="0 0 18 14"><path d="M15.248 1.198A15.16 15.16 0 0 0 11.47.003a.057.057 0 0 0-.06.028c-.163.29-.344.67-.47.968a13.99 13.99 0 0 0-4.19 0 9.8 9.8 0 0 0-.476-.968.059.059 0 0 0-.06-.028 15.116 15.116 0 0 0-3.779 1.195.054.054 0 0 0-.024.02C.366 5.09-.22 8.872.068 12.606a.063.063 0 0 0 .024.043 15.224 15.224 0 0 0 4.579 2.316.06.06 0 0 0 .065-.021c.353-.482.667-.99.937-1.524a.058.058 0 0 0-.032-.081 10.02 10.02 0 0 1-1.43-.682.059.059 0 0 1-.006-.097c.096-.072.192-.147.284-.222a.057.057 0 0 1 .059-.008c3 1.371 6.249 1.371 9.213 0a.057.057 0 0 1 .06.007c.092.075.188.151.285.223a.059.059 0 0 1-.005.097 9.395 9.395 0 0 1-1.432.681.059.059 0 0 0-.031.082c.275.533.589 1.04.936 1.523a.059.059 0 0 0 .065.022 15.183 15.183 0 0 0 4.586-2.316.06.06 0 0 0 .024-.042c.338-4.239-.566-7.99-2.396-11.389a.047.047 0 0 0-.023-.02ZM6.01 10.364c-.903 0-1.647-.829-1.647-1.847 0-1.017.728-1.847 1.647-1.847.926 0 1.663.837 1.647 1.847 0 1.018-.728 1.847-1.647 1.847Zm6.09 0c-.903 0-1.647-.829-1.647-1.847 0-1.017.728-1.847 1.647-1.847.926 0 1.663.837 1.647 1.847 0 1.018-.721 1.847-1.647 1.847Z" fill="currentColor"/></svg>
+            <span data-i18n="hero.cta">Contact on Discord</span>
+          </a>
+          <a href="#communities" class="btn btn-ghost">
+            <span data-i18n="hero.cta2">View Communities</span>
+            <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-av reveal" style="transition-delay:.12s">
+        <div class="av-glow"></div>
+        <div class="av-orbit"></div>
+        <img class="av-img" src="https://osein.vercel.app/assets/osein.png" alt="Osein" />
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-cards">
+        <div class="abt-card reveal" style="transition-delay:.04s">
+          <div class="abt-ico">⚡</div>
+          <div>
+            <h4 data-i18n="about.f1.title">Fast Response</h4>
+            <p data-i18n="about.f1.desc">Always active and quick to handle incidents, violations, and member needs before they escalate.</p>
+          </div>
+        </div>
+        <div class="abt-card reveal" style="transition-delay:.1s">
+          <div class="abt-ico">🛡️</div>
+          <div>
+            <h4 data-i18n="about.f2.title">Safe Environments</h4>
+            <p data-i18n="about.f2.desc">Building structured, rule-based spaces where every member feels secure and respected.</p>
+          </div>
+        </div>
+        <div class="abt-card reveal" style="transition-delay:.16s">
+          <div class="abt-ico">💬</div>
+          <div>
+            <h4 data-i18n="about.f3.title">Community Engagement</h4>
+            <p data-i18n="about.f3.desc">Driving genuine activity through events, interactions, and a welcoming tone that retains members.</p>
+          </div>
+        </div>
+        <div class="abt-card reveal" style="transition-delay:.22s">
+          <div class="abt-ico">🎯</div>
+          <div>
+            <h4 data-i18n="about.f4.title">Strategic Mindset</h4>
+            <p data-i18n="about.f4.desc">Every moderation decision aligns with the server's long-term goals and community values.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-copy reveal" style="transition-delay:.1s">
+        <span class="tag" data-i18n="about.tag">About Me</span>
+        <h2 class="section-title" data-i18n="about.title">Professional Discord Moderator</h2>
+        <p data-i18n="about.p1">I'm <strong>Osein</strong> — a dedicated Discord moderator with deep experience in high-traffic anime communities. My work goes beyond rule enforcement: I focus on the culture, feel, and long-term health of every server I'm part of.</p>
+        <p data-i18n="about.p2">Managing thousands of members across multiple fast-moving communities has taught me how to handle conflict cleanly, build reliable moderation teams, and maintain consistency even under pressure.</p>
+        <p data-i18n="about.p3">I bring professionalism, fairness, and genuine care to every community I join — because a well-run server isn't just managed, it's shaped.</p>
+        <a href="https://discord.com/users/1077000858342006867" target="_blank" rel="noopener" class="btn btn-solid">
+          <span data-i18n="about.cta">Get in Touch</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     SKILLS
+══════════════════════════════════════════════ -->
+<section id="skills">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag" data-i18n="skills.tag">Expertise</span>
+      <h2 class="section-title" data-i18n="skills.title">What I Bring to Your Server</h2>
+      <p class="section-desc" data-i18n="skills.desc">Every skill sharpened through real experience managing active, high-traffic Discord communities.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="sk-card reveal" style="transition-delay:.04s">
+        <div class="sk-ico">🛡️</div>
+        <h3 data-i18n="sk1.title">Active Moderation</h3>
+        <p data-i18n="sk1.desc">Consistent, fair rule enforcement. Rapid handling of spam, toxicity, and violations before they impact the community.</p>
+      </div>
+      <div class="sk-card reveal" style="transition-delay:.09s">
+        <div class="sk-ico">⚖️</div>
+        <h3 data-i18n="sk2.title">Conflict Resolution</h3>
+        <p data-i18n="sk2.desc">Neutral, professional mediation of member disputes — outcomes that are fair, final, and clearly communicated.</p>
+      </div>
+      <div class="sk-card reveal" style="transition-delay:.14s">
+        <div class="sk-ico">📋</div>
+        <h3 data-i18n="sk3.title">Server Structure</h3>
+        <p data-i18n="sk3.desc">Designing intuitive channel layouts, role hierarchies, and permission systems that scale with server growth.</p>
+      </div>
+      <div class="sk-card reveal" style="transition-delay:.19s">
+        <div class="sk-ico">🎉</div>
+        <h3 data-i18n="sk4.title">Event Organization</h3>
+        <p data-i18n="sk4.desc">Planning watch parties, contests, and community events that boost engagement and create memorable moments.</p>
+      </div>
+      <div class="sk-card reveal" style="transition-delay:.24s">
+        <div class="sk-ico">👥</div>
+        <h3 data-i18n="sk5.title">Team Leadership</h3>
+        <p data-i18n="sk5.desc">Coordinating mod teams, delegating responsibilities, and enforcing consistent standards across all staff.</p>
+      </div>
+      <div class="sk-card reveal" style="transition-delay:.29s">
+        <div class="sk-ico">📈</div>
+        <h3 data-i18n="sk6.title">Community Growth</h3>
+        <p data-i18n="sk6.desc">Retention strategies, member onboarding improvements, and engagement loops that grow a server organically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     COMMUNITIES
+══════════════════════════════════════════════ -->
+<section id="communities">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag" data-i18n="comm.tag">Portfolio</span>
+      <h2 class="section-title" data-i18n="comm.title">Communities I've Managed</h2>
+      <p class="section-desc" data-i18n="comm.desc">Trusted by leading anime Discord servers to keep their spaces safe, structured, and thriving.</p>
+    </div>
+    <div class="comm-grid">
+      <a href="https://discord.gg/K5gSxMUsm" target="_blank" rel="noopener" class="comm-card reveal" style="transition-delay:.05s">
+        <div class="comm-img"><img src="https://osein.vercel.app/assets/Anime%20Crash.webp" alt="Anime Crash" loading="lazy" /></div>
+        <div class="comm-foot"><span class="comm-name">Anime Crash</span><span class="comm-arr">↗</span></div>
+      </a>
+      <a href="https://discord.gg/xCN3kvCwzG" target="_blank" rel="noopener" class="comm-card reveal" style="transition-delay:.11s">
+        <div class="comm-img"><img src="https://osein.vercel.app/assets/Anime%20Brawl.png" alt="Anime Brawl" loading="lazy" /></div>
+        <div class="comm-foot"><span class="comm-name">Anime Brawl</span><span class="comm-arr">↗</span></div>
+      </a>
+      <a href="https://discord.com/invite/CkVnGNm3Ct" target="_blank" rel="noopener" class="comm-card reveal" style="transition-delay:.17s">
+        <div class="comm-img"><img src="https://osein.vercel.app/assets/AL.webp" alt="Anime All" loading="lazy" /></div>
+        <div class="comm-foot"><span class="comm-name">Anime All</span><span class="comm-arr">↗</span></div>
+      </a>
+      <a href="https://discord.gg/xYMbWT8hby" target="_blank" rel="noopener" class="comm-card reveal" style="transition-delay:.23s">
+        <div class="comm-img"><img src="https://osein.vercel.app/assets/Anime%20Fallen.png" alt="Anime Fallen" loading="lazy" /></div>
+        <div class="comm-foot"><span class="comm-name">Anime Fallen</span><span class="comm-arr">↗</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     CONTACT
+══════════════════════════════════════════════ -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-box reveal">
+      <span class="tag" data-i18n="contact.tag">Let's Work Together</span>
+      <h2 class="section-title" data-i18n="contact.title">Ready to Elevate Your Community?</h2>
+      <p class="section-desc" data-i18n="contact.desc">Looking for a reliable, experienced moderator? Let's connect and build something your members will love.</p>
+      <div class="contact-btns">
+        <a href="https://discord.com/users/1077000858342006867" target="_blank" rel="noopener" class="btn btn-solid">
+          <svg width="16" height="12" fill="none" viewBox="0 0 18 14"><path d="M15.248 1.198A15.16 15.16 0 0 0 11.47.003a.057.057 0 0 0-.06.028c-.163.29-.344.67-.47.968a13.99 13.99 0 0 0-4.19 0 9.8 9.8 0 0 0-.476-.968.059.059 0 0 0-.06-.028 15.116 15.116 0 0 0-3.779 1.195.054.054 0 0 0-.024.02C.366 5.09-.22 8.872.068 12.606a.063.063 0 0 0 .024.043 15.224 15.224 0 0 0 4.579 2.316.06.06 0 0 0 .065-.021c.353-.482.667-.99.937-1.524a.058.058 0 0 0-.032-.081 10.02 10.02 0 0 1-1.43-.682.059.059 0 0 1-.006-.097c.096-.072.192-.147.284-.222a.057.057 0 0 1 .059-.008c3 1.371 6.249 1.371 9.213 0a.057.057 0 0 1 .06.007c.092.075.188.151.285.223a.059.059 0 0 1-.005.097 9.395 9.395 0 0 1-1.432.681.059.059 0 0 0-.031.082c.275.533.589 1.04.936 1.523a.059.059 0 0 0 .065.022 15.183 15.183 0 0 0 4.586-2.316.06.06 0 0 0 .024-.042c.338-4.239-.566-7.99-2.396-11.389a.047.047 0 0 0-.023-.02ZM6.01 10.364c-.903 0-1.647-.829-1.647-1.847 0-1.017.728-1.847 1.647-1.847.926 0 1.663.837 1.647 1.847 0 1.018-.728 1.847-1.647 1.847Zm6.09 0c-.903 0-1.647-.829-1.647-1.847 0-1.017.728-1.847 1.647-1.847.926 0 1.663.837 1.647 1.847 0 1.018-.721 1.847-1.647 1.847Z" fill="currentColor"/></svg>
+          <span data-i18n="contact.cta">Message on Discord</span>
+        </a>
+        <a href="#communities" class="btn btn-ghost" data-i18n="contact.cta2">Browse Communities</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <p data-i18n="footer.text">© 2025 Osein · Discord Moderator &amp; Community Manager · All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ─── i18n strings ──────────────────────────────────────── */
+  const STRINGS = {
+    en: {
+      'nav.home': 'Home', 'nav.about': 'About', 'nav.skills': 'Skills',
+      'nav.communities': 'Communities', 'nav.contact': 'Contact', 'nav.hire': 'Hire Me',
+      'hero.badge': 'Available for work',
+      'hero.title.sub': '& Community Lead',
+      'hero.desc': 'Professional moderator with proven experience managing large-scale anime communities. I build safe, structured, and genuinely active spaces that members want to return to.',
+      'hero.cta': 'Contact on Discord', 'hero.cta2': 'View Communities',
+      'about.tag': 'About Me', 'about.title': 'Professional Discord Moderator',
+      'about.p1': 'I\'m <strong>Osein</strong> — a dedicated Discord moderator with deep experience in high-traffic anime communities. My work goes beyond rule enforcement: I focus on the culture, feel, and long-term health of every server I\'m part of.',
+      'about.p2': 'Managing thousands of members across multiple fast-moving communities has taught me how to handle conflict cleanly, build reliable moderation teams, and maintain consistency even under pressure.',
+      'about.p3': 'I bring professionalism, fairness, and genuine care to every community I join — because a well-run server isn\'t just managed, it\'s shaped.',
+      'about.cta': 'Get in Touch',
+      'about.f1.title': 'Fast Response',      'about.f1.desc': 'Always active and quick to handle incidents, violations, and member needs before they escalate.',
+      'about.f2.title': 'Safe Environments',  'about.f2.desc': 'Building structured, rule-based spaces where every member feels secure and respected.',
+      'about.f3.title': 'Community Engagement','about.f3.desc': 'Driving genuine activity through events, interactions, and a welcoming tone that retains members.',
+      'about.f4.title': 'Strategic Mindset',  'about.f4.desc': "Every moderation decision aligns with the server's long-term goals and community values.",
+      'skills.tag': 'Expertise', 'skills.title': 'What I Bring to Your Server',
+      'skills.desc': 'Every skill sharpened through real experience managing active, high-traffic Discord communities.',
+      'sk1.title': 'Active Moderation',    'sk1.desc': 'Consistent, fair rule enforcement. Rapid handling of spam, toxicity, and violations before they impact the community.',
+      'sk2.title': 'Conflict Resolution',  'sk2.desc': 'Neutral, professional mediation of member disputes — outcomes that are fair, final, and clearly communicated.',
+      'sk3.title': 'Server Structure',     'sk3.desc': 'Designing intuitive channel layouts, role hierarchies, and permission systems that scale with server growth.',
+      'sk4.title': 'Event Organization',   'sk4.desc': 'Planning watch parties, contests, and community events that boost engagement and create memorable moments.',
+      'sk5.title': 'Team Leadership',      'sk5.desc': 'Coordinating mod teams, delegating responsibilities, and enforcing consistent standards across all staff.',
+      'sk6.title': 'Community Growth',     'sk6.desc': 'Retention strategies, member onboarding improvements, and engagement loops that grow a server organically.',
+      'comm.tag': 'Portfolio', 'comm.title': "Communities I've Managed",
+      'comm.desc': 'Trusted by leading anime Discord servers to keep their spaces safe, structured, and thriving.',
+      'contact.tag': "Let's Work Together", 'contact.title': 'Ready to Elevate Your Community?',
+      'contact.desc': "Looking for a reliable, experienced moderator? Let's connect and build something your members will love.",
+      'contact.cta': 'Message on Discord', 'contact.cta2': 'Browse Communities',
+      'footer.text': '© 2025 Osein · Discord Moderator & Community Manager · All rights reserved.'
+    },
+    pt: {
+      'nav.home': 'Início', 'nav.about': 'Sobre', 'nav.skills': 'Habilidades',
+      'nav.communities': 'Comunidades', 'nav.contact': 'Contato', 'nav.hire': 'Contratar',
+      'hero.badge': 'Disponível para trabalho',
+      'hero.title.sub': '& Líder de Comunidade',
+      'hero.desc': 'Moderador profissional com experiência comprovada em grandes comunidades de anime. Construo espaços seguros, organizados e genuinamente ativos que os membros querem frequentar.',
+      'hero.cta': 'Contato pelo Discord', 'hero.cta2': 'Ver Comunidades',
+      'about.tag': 'Sobre Mim', 'about.title': 'Moderador Profissional de Discord',
+      'about.p1': 'Sou <strong>Osein</strong> — um moderador de Discord dedicado, com vasta experiência em comunidades de anime de alto tráfego. Meu trabalho vai além de aplicar regras: foco na cultura, na atmosfera e na saúde a longo prazo de cada servidor.',
+      'about.p2': 'Gerenciar milhares de membros em várias comunidades dinâmicas me ensinou a resolver conflitos com clareza, construir equipes de moderação confiáveis e manter consistência mesmo sob pressão.',
+      'about.p3': 'Levo profissionalismo, imparcialidade e cuidado genuíno a cada comunidade que faço parte — porque um servidor bem gerido não é apenas administrado, ele é moldado.',
+      'about.cta': 'Entrar em Contato',
+      'about.f1.title': 'Resposta Rápida',       'about.f1.desc': 'Sempre ativo e ágil para lidar com incidentes, infrações e necessidades dos membros antes que escalem.',
+      'about.f2.title': 'Ambientes Seguros',      'about.f2.desc': 'Criando espaços organizados e baseados em regras onde cada membro se sente seguro e respeitado.',
+      'about.f3.title': 'Engajamento',            'about.f3.desc': 'Impulsionando atividade genuína por meio de eventos, interações e um ambiente acolhedor que retém membros.',
+      'about.f4.title': 'Visão Estratégica',      'about.f4.desc': 'Cada decisão de moderação alinha-se com os objetivos de longo prazo e os valores da comunidade.',
+      'skills.tag': 'Habilidades', 'skills.title': 'O Que Ofereço ao Seu Servidor',
+      'skills.desc': 'Cada habilidade aprimorada com experiência real gerenciando comunidades de Discord ativas e de alto tráfego.',
+      'sk1.title': 'Moderação Ativa',         'sk1.desc': 'Aplicação consistente e justa de regras. Resposta rápida a spam, toxicidade e infrações.',
+      'sk2.title': 'Resolução de Conflitos',  'sk2.desc': 'Mediação neutra e profissional de disputas entre membros — resultados justos e claramente comunicados.',
+      'sk3.title': 'Estrutura do Servidor',   'sk3.desc': 'Criação de layouts de canais, hierarquias de cargos e sistemas de permissões que escalam com o crescimento.',
+      'sk4.title': 'Organização de Eventos',  'sk4.desc': 'Planejamento de watch parties, concursos e eventos comunitários que aumentam o engajamento.',
+      'sk5.title': 'Liderança de Equipe',     'sk5.desc': 'Coordenação de equipes de mod, delegação de responsabilidades e padrões consistentes para toda a equipe.',
+      'sk6.title': 'Crescimento da Comunidade','sk6.desc': 'Estratégias de retenção, melhorias no onboarding e loops de engajamento que fazem o servidor crescer organicamente.',
+      'comm.tag': 'Portfólio', 'comm.title': 'Comunidades que Gerenciei',
+      'comm.desc': 'Confiado pelos principais servidores de anime no Discord para manter seus espaços seguros, organizados e ativos.',
+      'contact.tag': 'Vamos Trabalhar Juntos', 'contact.title': 'Pronto para Elevar Sua Comunidade?',
+      'contact.desc': 'Procurando um moderador confiável e experiente? Vamos nos conectar e construir algo que seus membros vão adorar.',
+      'contact.cta': 'Mensagem no Discord', 'contact.cta2': 'Ver Comunidades',
+      'footer.text': '© 2025 Osein · Moderador de Discord & Gestor de Comunidades · Todos os direitos reservados.'
+    }
+  };
+
+  let currentLang = 'en';
+
+  function applyLang(lang) {
+    currentLang = lang;
+    const dict = STRINGS[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+    document.querySelector('#lang-en').classList.toggle('active', lang === 'en');
+    document.querySelector('#lang-pt').classList.toggle('active', lang === 'pt');
+    document.documentElement.lang = lang;
+  }
+
+  document.getElementById('lang-en').addEventListener('click', () => applyLang('en'));
+  document.getElementById('lang-pt').addEventListener('click', () => applyLang('pt'));
+
+  /* ─── Theme toggle ──────────────────────────────────────── */
+  const html      = document.documentElement;
+  const moonIcon  = document.getElementById('icon-moon');
+  const sunIcon   = document.getElementById('icon-sun');
+  let isDark      = true;
+
+  function applyTheme(dark) {
+    isDark = dark;
+    html.setAttribute('data-theme', dark ? 'dark' : 'light');
+    moonIcon.style.display = dark  ? '' : 'none';
+    sunIcon.style.display  = dark  ? 'none' : '';
+  }
+
+  document.getElementById('theme-toggle').addEventListener('click', () => applyTheme(!isDark));
+
+  /* ─── Custom cursor ─────────────────────────────────────── */
+  const dot  = document.getElementById('cur-dot');
+  const ring = document.getElementById('cur-ring');
+  let mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    rx += (mx - rx) * 0.13; ry += (my - ry) * 0.13;
+    dot.style.left  = mx + 'px'; dot.style.top  = my + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+
+  document.querySelectorAll('a, button, .sk-card, .comm-card, .abt-card').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('ch'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('ch'));
+  });
+
+  /* ─── Nav scroll ────────────────────────────────────────── */
+  const nav = document.getElementById('nav');
+  const tick = () => nav.classList.toggle('scrolled', scrollY > 48);
+  addEventListener('scroll', tick, { passive: true });
+  tick();
+
+  /* ─── Reveal on scroll ──────────────────────────────────── */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+})();
+</script>
+
+</body>
+</html>
