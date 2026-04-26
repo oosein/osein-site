@@ -1,945 +1,736 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>oSein — Discord Moderator & Community Manager</title>
-<style>
-  /* ── RESET & BASE ── */
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --bg-deep:    #070709;
-    --bg-mid:     #0d0d12;
-    --bg-card:    rgba(255,255,255,0.035);
-    --border:     rgba(255,255,255,0.07);
-    --border-h:   rgba(255,255,255,0.18);
-    --text-1:     #f0f0f0;
-    --text-2:     #a3a3a3;
-    --text-3:     #616161;
-    --grad-name:  linear-gradient(135deg, #e5e5e5 0%, #a3a3a3 100%);
-    --grad-btn:   linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-    --glow-soft:  rgba(180,180,200,0.12);
-    --glow-mid:   rgba(180,180,200,0.22);
-    --accent:     #c8c8d8;
-  }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg-deep);
-    color: var(--text-1);
-    overflow-x: hidden;
-    cursor: none;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oSein — Discord Moderator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── CUSTOM CURSOR ── */
-  #cursor-dot {
-    position: fixed; top: 0; left: 0; z-index: 9999;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #e5e5e5;
-    box-shadow: 0 0 12px 4px rgba(200,200,220,0.6);
-    pointer-events: none;
-    transform: translate(-50%,-50%);
-    transition: transform .08s ease, width .2s ease, height .2s ease, box-shadow .2s ease;
-  }
-  #cursor-ring {
-    position: fixed; top: 0; left: 0; z-index: 9998;
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 1.5px solid rgba(200,200,220,0.35);
-    pointer-events: none;
-    transform: translate(-50%,-50%);
-    transition: transform .18s cubic-bezier(.25,.46,.45,.94), width .25s ease, height .25s ease, border-color .25s ease;
-  }
-  body.hovering #cursor-dot { width: 14px; height: 14px; box-shadow: 0 0 20px 8px rgba(200,200,220,0.5); }
-  body.hovering #cursor-ring { width: 52px; height: 52px; border-color: rgba(200,200,220,0.55); }
+    :root {
+      --bg: #111111;
+      --bg2: #161616;
+      --bg3: #1a1a1a;
+      --bg4: #222222;
+      --border: #2a2a2a;
+      --text: #e0e0e0;
+      --text2: #999999;
+      --text3: #666666;
+      --accent: #aaaaaa;
+      --glow: rgba(170,170,170,0.12);
+      --glow2: rgba(170,170,170,0.06);
+      --btn-from: #1a1a1a;
+      --btn-to: #2a2a2a;
+      --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    }
+    [data-theme="light"] {
+      --bg: #f0f0f0;
+      --bg2: #f5f5f5;
+      --bg3: #ececec;
+      --bg4: #e0e0e0;
+      --border: #d0d0d0;
+      --text: #1a1a1a;
+      --text2: #555555;
+      --text3: #888888;
+      --accent: #555555;
+      --glow: rgba(0,0,0,0.08);
+      --glow2: rgba(0,0,0,0.04);
+      --btn-from: #e5e5e5;
+      --btn-to: #ffffff;
+      --shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
 
-  /* ── CANVAS BG ── */
-  #bg-canvas {
-    position: fixed; inset: 0; z-index: 0;
-    pointer-events: none;
-  }
+    html { scroll-behavior: smooth; }
 
-  /* ── AMBIENT BLOBS ── */
-  .ambient {
-    position: fixed; border-radius: 50%; filter: blur(90px);
-    pointer-events: none; z-index: 0; opacity: .45;
-  }
-  .ambient-1 { width: 600px; height: 600px; top: -200px; left: -200px; background: radial-gradient(circle, rgba(100,100,140,.5), transparent 70%); animation: blobFloat1 18s ease-in-out infinite; }
-  .ambient-2 { width: 500px; height: 500px; top: 40%; right: -150px; background: radial-gradient(circle, rgba(80,80,120,.4), transparent 70%); animation: blobFloat2 22s ease-in-out infinite; }
-  .ambient-3 { width: 400px; height: 400px; bottom: 5%; left: 20%; background: radial-gradient(circle, rgba(60,60,100,.35), transparent 70%); animation: blobFloat3 15s ease-in-out infinite; }
-  @keyframes blobFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(40px,30px) scale(1.08)} }
-  @keyframes blobFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-30px,40px) scale(1.05)} }
-  @keyframes blobFloat3 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-25px) scale(1.06)} }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      cursor: none;
+      overflow-x: hidden;
+      transition: background 0.4s, color 0.4s;
+    }
 
-  /* ── NAVBAR ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    height: 64px;
-    background: rgba(7,7,9,0.6);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 clamp(24px,5vw,80px);
-    box-shadow: 0 1px 40px rgba(0,0,0,.5);
-  }
-  .nav-logo {
-    font-size: 1.3rem; font-weight: 700; letter-spacing: .04em;
-    background: var(--grad-name); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    text-decoration: none;
-  }
-  .nav-links { display: flex; gap: 36px; list-style: none; }
-  .nav-links a {
-    color: var(--text-2); text-decoration: none; font-size: .9rem;
-    font-weight: 500; letter-spacing: .03em;
-    position: relative; padding-bottom: 3px;
-    transition: color .25s;
-  }
-  .nav-links a::after {
-    content: ''; position: absolute; bottom: 0; left: 50%; right: 50%;
-    height: 1.5px; background: var(--accent);
-    transition: left .3s, right .3s;
-    border-radius: 2px;
-    box-shadow: 0 0 6px rgba(200,200,220,.5);
-  }
-  .nav-links a:hover { color: var(--text-1); }
-  .nav-links a:hover::after { left: 0; right: 0; }
+    /* ===== CURSOR ===== */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #aaaaaa;
+      box-shadow: 0 0 10px 3px rgba(170,170,170,0.45);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.08s ease, width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
+      will-change: left, top;
+    }
+    #cursor.hovered {
+      width: 20px; height: 20px;
+      box-shadow: 0 0 18px 6px rgba(170,170,170,0.55);
+    }
 
-  /* ── WRAPPER ── */
-  .content-wrap { position: relative; z-index: 1; }
+    /* ===== BG GRADIENT ===== */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(170,170,170,0.04) 0%, transparent 70%);
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      animation: bgPulse 8s ease-in-out infinite;
+    }
+    .bg-glow::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(170,170,170,0.03) 0%, transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: bgPulse 10s ease-in-out infinite reverse;
+    }
+    @keyframes bgPulse {
+      0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+    }
 
-  /* ── SECTION SHARED ── */
-  section { padding: clamp(80px, 10vw, 130px) clamp(24px,5vw,80px); max-width: 1200px; margin: 0 auto; }
+    /* ===== LAYOUT ===== */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
-  /* ── SECTION LABEL ── */
-  .section-label {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--text-3); margin-bottom: 14px;
-  }
-  .section-label::before {
-    content: ''; display: block; width: 22px; height: 1.5px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-  }
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(17,17,17,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.4s;
+    }
+    [data-theme="light"] nav {
+      background: rgba(240,240,240,0.75);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .nav-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .nav-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: none;
+      transition: all 0.25s ease;
+      font-weight: 500;
+    }
+    .nav-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--glow);
+      transform: translateY(-1px);
+    }
 
-  /* ── HERO ── */
-  #inicio {
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    padding-top: 100px;
-    position: relative;
-  }
-  .hero-inner {
-    display: flex; align-items: center; gap: clamp(48px, 7vw, 110px);
-    flex-wrap: wrap; justify-content: center;
-  }
+    /* ===== SECTIONS ===== */
+    section {
+      padding: 80px 0;
+    }
+    section:first-of-type {
+      padding-top: 140px;
+    }
 
-  /* Avatar cluster */
-  .avatar-cluster {
-    position: relative; width: 240px; height: 240px;
-    flex-shrink: 0;
-  }
-  .avatar-cluster .ring-outer {
-    position: absolute; inset: -18px; border-radius: 50%;
-    border: 1px solid rgba(200,200,220,.12);
-    animation: spinRing 30s linear infinite;
-  }
-  .avatar-cluster .ring-mid {
-    position: absolute; inset: -9px; border-radius: 50%;
-    border: 1.5px solid rgba(200,200,220,.18);
-    border-style: dashed;
-    animation: spinRing 20s linear infinite reverse;
-  }
-  .avatar-cluster .ring-inner {
-    position: absolute; inset: -2px; border-radius: 50%;
-    border: 2px solid rgba(200,200,220,.28);
-    box-shadow: 0 0 28px rgba(180,180,210,.2), inset 0 0 20px rgba(180,180,210,.08);
-  }
-  @keyframes spinRing { to { transform: rotate(360deg); } }
+    /* ===== FADE IN ===== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-  /* Orbiting dot */
-  .orbit-dot {
-    position: absolute;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #d4d4e4;
-    box-shadow: 0 0 14px 4px rgba(200,200,220,.7);
-    top: 50%; left: 50%;
-    transform-origin: 0 0;
-    animation: orbitDot 6s linear infinite;
-  }
-  @keyframes orbitDot {
-    from { transform: rotate(0deg) translateX(130px) translateY(-5px); }
-    to   { transform: rotate(360deg) translateX(130px) translateY(-5px); }
-  }
-  .orbit-dot-2 {
-    width: 6px; height: 6px;
-    background: #a0a0b8;
-    box-shadow: 0 0 10px 3px rgba(160,160,184,.6);
-    animation: orbitDot 9s linear infinite reverse;
-    animation-delay: -3s;
-  }
+    /* ===== HERO ===== */
+    .hero {
+      text-align: center;
+    }
 
-  .avatar-img {
-    width: 240px; height: 240px; border-radius: 50%;
-    object-fit: cover;
-    display: block;
-    box-shadow: 0 0 40px rgba(180,180,210,.25), 0 8px 40px rgba(0,0,0,.6);
-  }
+    /* AVATAR */
+    .avatar-wrap {
+      position: relative;
+      display: inline-block;
+      width: 120px; height: 120px;
+      margin-bottom: 28px;
+    }
+    .avatar-img {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 0 20px rgba(170,170,170,0.18), 0 0 40px rgba(170,170,170,0.08);
+      animation: avatarPulse 4s ease-in-out infinite;
+    }
+    @keyframes avatarPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(170,170,170,0.18), 0 0 40px rgba(170,170,170,0.08); }
+      50% { box-shadow: 0 0 28px rgba(170,170,170,0.28), 0 0 55px rgba(170,170,170,0.13); }
+    }
 
-  /* Floating particles around avatar */
-  .hero-particle {
-    position: absolute; border-radius: 50%;
-    background: rgba(200,200,220,.55);
-    pointer-events: none;
-    animation: particleFloat 4s ease-in-out infinite;
-  }
-  @keyframes particleFloat {
-    0%,100% { transform: translateY(0) scale(1); opacity: .6; }
-    50%      { transform: translateY(-12px) scale(1.2); opacity: 1; }
-  }
+    /* Anel fino */
+    .avatar-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 138px; height: 138px;
+      border-radius: 50%;
+      border: 1px solid rgba(170,170,170,0.18);
+      transform: translate(-50%, -50%);
+      animation: ringRotate 12s linear infinite;
+      z-index: 1;
+    }
+    .avatar-ring::after {
+      content: '';
+      position: absolute;
+      top: -2px; left: 50%;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #aaaaaa;
+      box-shadow: 0 0 8px 3px rgba(170,170,170,0.5);
+      transform: translateX(-50%);
+    }
+    @keyframes ringRotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
 
-  /* Decorative diamond */
-  .hero-diamond {
-    position: absolute; width: 14px; height: 14px;
-    border: 1.5px solid rgba(200,200,220,.4);
-    transform: rotate(45deg);
-    animation: diamondSpin 12s linear infinite;
-  }
-  @keyframes diamondSpin { to { transform: rotate(405deg); } }
+    /* Bolinha orbitando */
+    .avatar-orbit {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbitRotate 7s linear infinite;
+      z-index: 3;
+    }
+    .orbit-dot {
+      position: absolute;
+      top: -4px; left: 50%;
+      transform: translateX(-50%);
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(170,170,170,0.7);
+      box-shadow: 0 0 8px 2px rgba(170,170,170,0.4);
+    }
+    .orbit-trail {
+      position: absolute;
+      top: -3px; left: 50%;
+      width: 18px; height: 3px;
+      border-radius: 2px;
+      background: linear-gradient(to left, transparent, rgba(170,170,170,0.25));
+      transform: translateX(-100%);
+    }
+    @keyframes orbitRotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
 
-  /* Hero text */
-  .hero-text { max-width: 480px; }
-  .hero-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 6px 16px; border-radius: 999px;
-    background: rgba(255,255,255,.04); border: 1px solid var(--border);
-    font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--text-2); margin-bottom: 22px;
-  }
-  .hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: #8aff9a; box-shadow: 0 0 6px #4aff6a; animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .hero h1 {
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .hero p.tagline {
+      font-size: 14px;
+      color: var(--text2);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
 
-  .hero-name {
-    font-size: clamp(3.2rem, 6vw, 5.5rem);
-    font-weight: 900; letter-spacing: -.02em; line-height: 1;
-    background: var(--grad-name); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    margin-bottom: 16px;
-    text-shadow: none;
-    position: relative;
-  }
-  .hero-name::after {
-    content: 'oSein';
-    position: absolute; inset: 0;
-    background: var(--grad-name); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    filter: blur(18px) opacity(.4);
-    z-index: -1;
-  }
+    /* ===== DIVIDER ===== */
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin: 56px auto;
+      opacity: 0.6;
+    }
 
-  .hero-subtitle {
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    color: var(--text-2); font-weight: 400; margin-bottom: 10px;
-    line-height: 1.6; letter-spacing: .01em;
-  }
-  .hero-desc {
-    font-size: .88rem; color: var(--text-3); line-height: 1.75; margin-bottom: 36px;
-  }
-  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 28px;
+    }
 
-  /* ── PREMIUM BUTTONS ── */
-  .btn {
-    display: inline-flex; align-items: center; gap: 9px;
-    padding: 13px 28px; border-radius: 14px;
-    font-size: .88rem; font-weight: 600; letter-spacing: .04em;
-    text-decoration: none; cursor: pointer; border: none;
-    position: relative; overflow: hidden;
-    transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease;
-    white-space: nowrap;
-  }
-  .btn::before {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(255,255,255,0);
-    transition: background .25s;
-  }
-  .btn:hover::before { background: rgba(255,255,255,.06); }
-  .btn:hover { transform: translateY(-3px) scale(1.02); }
-  .btn:active { transform: translateY(0) scale(.98); }
+    /* ===== SOBRE MIM ===== */
+    .about-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 36px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .about-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow), 0 0 20px var(--glow2);
+    }
+    .about-card p {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.8;
+      font-weight: 400;
+    }
+    .about-card p + p {
+      margin-top: 12px;
+    }
 
-  .btn-primary {
-    background: linear-gradient(135deg, #2d2d3a 0%, #1a1a24 100%);
-    color: var(--text-1);
-    border: 1px solid rgba(200,200,220,.2);
-    box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 0 0 rgba(200,200,220,.1), inset 0 1px 0 rgba(255,255,255,.07);
-  }
-  .btn-primary:hover {
-    box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 24px rgba(180,180,210,.18), inset 0 1px 0 rgba(255,255,255,.1);
-  }
-  .btn-ghost {
-    background: rgba(255,255,255,.03);
-    color: var(--text-2);
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.04);
-  }
-  .btn-ghost:hover {
-    color: var(--text-1); border-color: rgba(200,200,220,.3);
-    box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 16px rgba(180,180,210,.12);
-  }
-  .btn-icon { font-size: 1.1rem; line-height: 1; }
+    /* ===== HABILIDADES ===== */
+    .skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .skill-item {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .skill-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text2);
+    }
+    .skill-bar-bg {
+      height: 4px;
+      border-radius: 4px;
+      background: var(--bg4);
+      overflow: hidden;
+    }
+    .skill-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #555 0%, #aaa 100%);
+      width: 0%;
+      transition: width 0.9s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s;
+    }
+    .skill-item:hover .skill-bar {
+      box-shadow: 0 0 8px rgba(170,170,170,0.4);
+    }
 
-  /* ── DIVIDER ── */
-  .section-divider {
-    width: clamp(24px,5vw,80px);
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-    margin: 0 auto;
-  }
+    /* ===== SERVIDORES ===== */
+    .servers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+    .server-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      box-shadow: var(--shadow);
+    }
+    .server-card:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--shadow), 0 0 18px var(--glow);
+      border-color: rgba(170,170,170,0.25);
+    }
+    .server-img {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+    .server-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .server-role {
+      font-size: 11px;
+      color: var(--text3);
+      font-weight: 500;
+    }
+    .server-desc {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .server-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .server-btn:hover {
+      color: var(--text);
+      border-color: rgba(170,170,170,0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3), 0 0 10px var(--glow2);
+    }
 
-  /* ── SERVICES ── */
-  #servicos { padding-top: 60px; }
-  .section-heading {
-    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-    font-weight: 800; letter-spacing: -.02em; line-height: 1.15;
-    margin-bottom: 10px;
-  }
-  .section-heading span {
-    background: var(--grad-name); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-  .section-sub { color: var(--text-2); font-size: .92rem; margin-bottom: 56px; max-width: 520px; line-height: 1.7; }
+    .discord-icon {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+    }
 
-  .services-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 22px;
-  }
-  .service-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    padding: 32px 28px;
-    position: relative; overflow: hidden;
-    transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease;
-    backdrop-filter: blur(10px);
-  }
-  .service-card::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(200,200,220,.15), transparent);
-  }
-  .service-card::after {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(180,180,210,.06), transparent 70%);
-    pointer-events: none;
-  }
-  .service-card:hover {
-    transform: translateY(-6px) scale(1.01);
-    border-color: var(--border-h);
-    box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 30px rgba(180,180,210,.1);
-  }
-  .service-icon-box {
-    width: 52px; height: 52px; border-radius: 16px;
-    background: linear-gradient(135deg, rgba(180,180,210,.12), rgba(100,100,140,.06));
-    border: 1px solid rgba(200,200,220,.12);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; margin-bottom: 20px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
-    position: relative; z-index: 1;
-    transition: box-shadow .3s, transform .3s;
-  }
-  .service-card:hover .service-icon-box {
-    box-shadow: 0 6px 24px rgba(0,0,0,.4), 0 0 16px rgba(180,180,210,.2), inset 0 1px 0 rgba(255,255,255,.1);
-    transform: scale(1.08) rotate(-2deg);
-  }
-  .service-title {
-    font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; position: relative; z-index: 1;
-  }
-  .service-desc { color: var(--text-2); font-size: .87rem; line-height: 1.75; position: relative; z-index: 1; }
+    /* ===== CONECTE COMIGO ===== */
+    .connect-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .connect-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow), 0 0 24px var(--glow2);
+    }
+    .connect-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .connect-card p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .connect-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      padding: 11px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      cursor: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .connect-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35), 0 0 16px var(--glow);
+      border-color: rgba(170,170,170,0.3);
+    }
+    .connect-btn svg {
+      width: 16px; height: 16px;
+    }
 
-  /* ── COMMUNITIES ── */
-  #comunidades { padding-top: 60px; }
-  .communities-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 22px;
-  }
-  .comm-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 22px; overflow: hidden;
-    transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease, border-color .3s ease;
-    backdrop-filter: blur(10px);
-    position: relative;
-    transform-style: preserve-3d;
-    cursor: pointer;
-  }
-  .comm-card::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(180,180,210,.08), transparent 60%);
-    pointer-events: none; z-index: 1;
-    opacity: 0; transition: opacity .3s;
-  }
-  .comm-card:hover::before { opacity: 1; }
-  .comm-card:hover {
-    transform: translateY(-8px) scale(1.02) rotateX(2deg);
-    border-color: var(--border-h);
-    box-shadow: 0 24px 70px rgba(0,0,0,.55), 0 0 36px rgba(180,180,210,.14);
-  }
-  .comm-banner {
-    height: 90px;
-    background: linear-gradient(135deg, #1a1a2a, #0d0d18);
-    position: relative; overflow: hidden;
-  }
-  .comm-banner::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to bottom, transparent 40%, rgba(7,7,9,.9));
-  }
-  .comm-avatar-wrap {
-    position: relative; z-index: 2;
-    margin: -32px 0 0 22px;
-    display: inline-block;
-  }
-  .comm-avatar {
-    width: 64px; height: 64px; border-radius: 18px;
-    border: 2.5px solid var(--bg-deep);
-    object-fit: cover;
-    box-shadow: 0 4px 20px rgba(0,0,0,.5);
-    display: block;
-    transition: transform .3s, box-shadow .3s;
-  }
-  .comm-card:hover .comm-avatar {
-    transform: scale(1.06);
-    box-shadow: 0 6px 28px rgba(0,0,0,.6), 0 0 14px rgba(180,180,210,.2);
-  }
-  .comm-body { padding: 14px 22px 22px; }
-  .comm-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-  .comm-role {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--text-3); margin-bottom: 12px;
-    padding: 3px 10px; border-radius: 999px;
-    background: rgba(255,255,255,.04); border: 1px solid var(--border);
-  }
-  .comm-desc { color: var(--text-2); font-size: .83rem; line-height: 1.7; margin-bottom: 18px; }
-  .comm-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 9px 18px; border-radius: 10px;
-    font-size: .8rem; font-weight: 600;
-    background: rgba(255,255,255,.05); border: 1px solid var(--border);
-    color: var(--text-2); text-decoration: none;
-    transition: all .25s;
-  }
-  .comm-btn:hover {
-    background: rgba(255,255,255,.09); border-color: var(--border-h);
-    color: var(--text-1);
-    box-shadow: 0 0 14px rgba(180,180,210,.12);
-  }
+    /* ===== FOOTER ===== */
+    footer {
+      padding: 32px 0;
+      text-align: center;
+      color: var(--text3);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
 
-  /* ── SKILLS ── */
-  #habilidades { padding-top: 60px; }
-  .skills-groups { display: flex; flex-direction: column; gap: 40px; }
-  .skill-group-label {
-    font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--text-3); margin-bottom: 16px;
-  }
-  .skills-row { display: flex; flex-wrap: wrap; gap: 12px; }
-  .skill-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 18px; border-radius: 12px;
-    background: rgba(255,255,255,.04); border: 1px solid var(--border);
-    font-size: .85rem; font-weight: 500; color: var(--text-2);
-    position: relative; overflow: hidden;
-    transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, border-color .25s, color .25s;
-    cursor: default;
-  }
-  .skill-tag::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(180,180,210,.08), transparent 70%);
-    opacity: 0; transition: opacity .25s;
-  }
-  .skill-tag:hover::before { opacity: 1; }
-  .skill-tag:hover {
-    transform: translateY(-3px) scale(1.04);
-    border-color: rgba(200,200,220,.28);
-    color: var(--text-1);
-    box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 12px rgba(180,180,210,.14);
-  }
-  .skill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-3); }
-
-  /* ── CONTACT ── */
-  #contato { padding-top: 60px; }
-  .contact-card {
-    border-radius: 28px;
-    background: rgba(255,255,255,.03);
-    border: 1px solid var(--border);
-    padding: clamp(48px,7vw,80px) clamp(32px,5vw,64px);
-    text-align: center;
-    position: relative; overflow: hidden;
-    backdrop-filter: blur(16px);
-    max-width: 720px; margin: 0 auto;
-    box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
-  }
-  .contact-card::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% -10%, rgba(180,180,210,.1), transparent 65%);
-    pointer-events: none;
-  }
-  .contact-card::after {
-    content: ''; position: absolute;
-    top: -1px; left: 20%; right: 20%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(200,200,220,.3), transparent);
-  }
-  .contact-icon {
-    width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 28px;
-    background: linear-gradient(135deg, rgba(180,180,210,.12), rgba(100,100,140,.07));
-    border: 1px solid rgba(200,200,220,.14);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
-  }
-  .contact-title {
-    font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.02em;
-    margin-bottom: 16px; position: relative; z-index: 1;
-  }
-  .contact-body {
-    color: var(--text-2); font-size: .93rem; line-height: 1.8;
-    margin-bottom: 36px; max-width: 460px; margin-left: auto; margin-right: auto;
-    position: relative; z-index: 1;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 32px clamp(24px,5vw,80px);
-    text-align: center;
-    color: var(--text-3); font-size: .82rem;
-    position: relative; z-index: 1;
-    background: rgba(7,7,9,.7);
-  }
-  footer a { color: var(--text-3); text-decoration: none; transition: color .2s; }
-  footer a:hover { color: var(--text-2); }
-  .footer-inner { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
-  .footer-name {
-    background: var(--grad-name); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    font-weight: 600;
-  }
-
-  /* ── SCROLL REVEAL ── */
-  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .reveal-delay-1 { transition-delay: .1s; }
-  .reveal-delay-2 { transition-delay: .2s; }
-  .reveal-delay-3 { transition-delay: .3s; }
-  .reveal-delay-4 { transition-delay: .4s; }
-
-  /* ── MISC ── */
-  .gradient-line {
-    display: block; width: 48px; height: 3px; border-radius: 3px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-    margin-top: 12px; margin-bottom: 48px;
-  }
-
-  @media (max-width: 640px) {
-    .nav-links { gap: 20px; }
-    .nav-links a { font-size: .82rem; }
-    .hero-inner { gap: 36px; }
-    .avatar-cluster { width: 180px; height: 180px; }
-    .avatar-img { width: 180px; height: 180px; }
-  }
-</style>
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 500px) {
+      .servers-grid { grid-template-columns: repeat(2, 1fr); }
+      .about-card { padding: 24px 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Cursor -->
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
+<div id="cursor"></div>
+<div class="bg-glow"></div>
 
-<!-- Ambient blobs -->
-<div class="ambient ambient-1"></div>
-<div class="ambient ambient-2"></div>
-<div class="ambient ambient-3"></div>
-
-<!-- BG Canvas (particles) -->
-<canvas id="bg-canvas"></canvas>
-
-<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
 <nav>
-  <a class="nav-logo" href="#inicio">oSein</a>
-  <ul class="nav-links">
-    <li><a href="#inicio">Início</a></li>
-    <li><a href="#servicos">Serviços</a></li>
-    <li><a href="#comunidades">Comunidades</a></li>
-    <li><a href="#habilidades">Habilidades</a></li>
-  </ul>
+  <div class="nav-inner">
+    <span class="nav-logo">oSein</span>
+    <div class="nav-actions">
+      <button class="nav-btn" id="langBtn">EN</button>
+      <button class="nav-btn" id="themeBtn">☀</button>
+    </div>
+  </div>
 </nav>
 
-<div class="content-wrap">
+<main>
 
-<!-- ═══════════════════════ HERO ═══════════════════════ -->
-<section id="inicio">
-  <div class="hero-inner">
-
-    <!-- Avatar -->
-    <div class="avatar-cluster reveal">
-      <div class="ring-outer"></div>
-      <div class="ring-mid"></div>
-      <div class="ring-inner"></div>
-      <div class="orbit-dot"></div>
-      <div class="orbit-dot orbit-dot-2"></div>
-      <img class="avatar-img" src="https://i.pinimg.com/736x/93/c6/6e/93c66e735b6c02afb07c3ba23480dfd7.jpg" alt="oSein avatar"/>
-      <!-- Particles -->
-      <span class="hero-particle" style="width:5px;height:5px;top:10%;left:92%;animation-delay:0s;animation-duration:3.2s"></span>
-      <span class="hero-particle" style="width:3px;height:3px;top:80%;left:5%;animation-delay:.8s;animation-duration:4.1s"></span>
-      <span class="hero-particle" style="width:4px;height:4px;top:55%;left:96%;animation-delay:1.5s;animation-duration:3.6s"></span>
-      <span class="hero-particle" style="width:3px;height:3px;top:20%;left:2%;animation-delay:2.2s;animation-duration:5s"></span>
-      <!-- Diamonds -->
-      <span class="hero-diamond" style="top:-26px;left:42%;width:10px;height:10px;border-color:rgba(200,200,220,.3)"></span>
-      <span class="hero-diamond" style="bottom:-22px;right:18%;width:8px;height:8px;border-color:rgba(200,200,220,.25);animation-duration:18s;animation-direction:reverse"></span>
-    </div>
-
-    <!-- Text -->
-    <div class="hero-text">
-      <div class="hero-tag reveal reveal-delay-1">
-        <span class="dot"></span> Disponível para novos projetos
-      </div>
-      <h1 class="hero-name reveal reveal-delay-2">oSein</h1>
-      <p class="hero-subtitle reveal reveal-delay-2">Discord Moderator &amp; Community Manager</p>
-      <p class="hero-desc reveal reveal-delay-3">
-        Especialista em criar e manter comunidades Discord saudáveis, vibrantes e bem gerenciadas.<br>
-        Transformo servidores em espaços verdadeiramente memoráveis.
-      </p>
-      <div class="hero-actions reveal reveal-delay-4">
-        <a href="#contato" class="btn btn-primary">
-          <span class="btn-icon">💬</span> Vamos conversar
-        </a>
-        <a href="#servicos" class="btn btn-ghost">
-          <span class="btn-icon">✦</span> Ver serviços
-        </a>
+  <section class="hero">
+    <div class="container">
+      <div class="fade-in">
+        <div class="avatar-wrap">
+          <div class="avatar-ring"></div>
+          <div class="avatar-orbit">
+            <div class="orbit-trail"></div>
+            <div class="orbit-dot"></div>
+          </div>
+          <img class="avatar-img"
+            src="https://i.pinimg.com/736x/93/c6/6e/93c66e735b6c02afb07c3ba23480dfd7.jpg"
+            alt="oSein" />
+        </div>
+        <h1 data-pt="oSein" data-en="oSein">oSein</h1>
+        <p class="tagline" data-pt="Discord Moderator & Community Manager" data-en="Discord Moderator & Community Manager">
+          Discord Moderator &amp; Community Manager
+        </p>
       </div>
     </div>
+  </section>
 
-  </div>
-</section>
+  <div class="divider"></div>
 
-<!-- ═══════════════════════ SERVICES ═══════════════════════ -->
-<section id="servicos">
-  <div class="section-label reveal">Especialidades</div>
-  <h2 class="section-heading reveal reveal-delay-1">O que posso <span>fazer por você</span></h2>
-  <span class="gradient-line reveal reveal-delay-1"></span>
-  <p class="section-sub reveal reveal-delay-2">Soluções completas de moderação e gestão para comunidades Discord de qualquer tamanho.</p>
-
-  <div class="services-grid">
-
-    <div class="service-card reveal reveal-delay-1">
-      <div class="service-icon-box">🛡️</div>
-      <h3 class="service-title">Moderação Ativa</h3>
-      <p class="service-desc">Monitoramento contínuo do servidor, aplicação de regras e manutenção de um ambiente saudável e respeitoso para todos os membros.</p>
-    </div>
-
-    <div class="service-card reveal reveal-delay-2">
-      <div class="service-icon-box">🌐</div>
-      <h3 class="service-title">Gestão de Comunidade</h3>
-      <p class="service-desc">Desenvolvimento de estratégias de engajamento, organização de eventos e crescimento orgânico da comunidade a longo prazo.</p>
-    </div>
-
-    <div class="service-card reveal reveal-delay-3">
-      <div class="service-icon-box">📋</div>
-      <h3 class="service-title">Estruturação de Servidor</h3>
-      <p class="service-desc">Organização de canais, categorias, cargos e permissões para uma hierarquia clara e uma experiência premium aos membros.</p>
-    </div>
-
-    <div class="service-card reveal reveal-delay-4">
-      <div class="service-icon-box">🤝</div>
-      <h3 class="service-title">Suporte à Equipe</h3>
-      <p class="service-desc">Treinamento de moderadores, criação de guias internos e apoio direto à liderança do servidor para equipes mais eficientes.</p>
-    </div>
-
-    <div class="service-card reveal reveal-delay-1">
-      <div class="service-icon-box">✍️</div>
-      <h3 class="service-title">Criação de Regras</h3>
-      <p class="service-desc">Elaboração de regulamentos claros, completos e justos, adaptados ao perfil e à cultura da sua comunidade específica.</p>
-    </div>
-
-    <div class="service-card reveal reveal-delay-2">
-      <div class="service-icon-box">🎯</div>
-      <h3 class="service-title">Resolução de Conflitos</h3>
-      <p class="service-desc">Mediação profissional de situações delicadas, garantindo decisões imparciais e preservando o bem-estar de todos os envolvidos.</p>
-    </div>
-
-  </div>
-</section>
-
-<!-- ═══════════════════════ COMMUNITIES ═══════════════════════ -->
-<section id="comunidades">
-  <div class="section-label reveal">Experiência</div>
-  <h2 class="section-heading reveal reveal-delay-1">Comunidades <span>onde atuei</span></h2>
-  <span class="gradient-line reveal reveal-delay-1"></span>
-  <p class="section-sub reveal reveal-delay-2">Servidores onde contribuí com moderação e gestão de comunidade ao longo da minha trajetória.</p>
-
-  <div class="communities-grid">
-
-    <!-- Anime Crash -->
-    <div class="comm-card reveal reveal-delay-1">
-      <div class="comm-banner"></div>
-      <div class="comm-avatar-wrap">
-        <img class="comm-avatar" src="https://osein.vercel.app/assets/Anime%20Crash.webp" alt="Anime Crash"/>
-      </div>
-      <div class="comm-body">
-        <div class="comm-name">Anime Crash</div>
-        <div class="comm-role">✦ Moderator (Retired)</div>
-        <p class="comm-desc">Comunidade de anime com foco em discussões e eventos temáticos.</p>
-        <a class="comm-btn" href="https://discord.gg/K5gSxMUsm" target="_blank" rel="noopener">
-          <span>↗</span> Explorar comunidade
-        </a>
+  <section>
+    <div class="container fade-in">
+      <p class="section-title" data-pt="Sobre mim" data-en="About me">Sobre mim</p>
+      <div class="about-card">
+        <p data-pt="Oi, eu sou o oSein. Cuido de comunidades no Discord há alguns anos — moderação, organização e manter o ambiente saudável para todo mundo." data-en="Hey, I'm oSein. I've been taking care of Discord communities for a few years — moderation, organization, and keeping things healthy for everyone.">
+          Oi, eu sou o oSein. Cuido de comunidades no Discord há alguns anos — moderação, organização e manter o ambiente saudável para todo mundo.
+        </p>
+        <p data-pt="Gosto de deixar os servidores bem estruturados e com uma vibe agradável para quem entra." data-en="I like keeping servers well-structured with a welcoming vibe for everyone who joins.">
+          Gosto de deixar os servidores bem estruturados e com uma vibe agradável para quem entra.
+        </p>
       </div>
     </div>
+  </section>
 
-    <!-- Anime Brawl -->
-    <div class="comm-card reveal reveal-delay-2">
-      <div class="comm-banner"></div>
-      <div class="comm-avatar-wrap">
-        <img class="comm-avatar" src="https://osein.vercel.app/assets/Anime%20Brawl.png" alt="Anime Brawl"/>
-      </div>
-      <div class="comm-body">
-        <div class="comm-name">Anime Brawl</div>
-        <div class="comm-role">✦ Trial Moderator</div>
-        <p class="comm-desc">Servidor competitivo de anime com foco em batalhas e rankings da comunidade.</p>
-        <a class="comm-btn" href="https://discord.gg/xCN3kvCwzG" target="_blank" rel="noopener">
-          <span>↗</span> Explorar comunidade
-        </a>
+  <div class="divider"></div>
+
+  <section>
+    <div class="container fade-in">
+      <p class="section-title" data-pt="Habilidades" data-en="Skills">Habilidades</p>
+      <div class="skills-list">
+        <div class="skill-item">
+          <div class="skill-header">
+            <span data-pt="Moderação" data-en="Moderation">Moderação</span>
+            <span>95%</span>
+          </div>
+          <div class="skill-bar-bg"><div class="skill-bar" data-value="95"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header">
+            <span data-pt="Gestão de Comunidade" data-en="Community Management">Gestão de Comunidade</span>
+            <span>88%</span>
+          </div>
+          <div class="skill-bar-bg"><div class="skill-bar" data-value="88"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header">
+            <span data-pt="Organização" data-en="Organization">Organização</span>
+            <span>90%</span>
+          </div>
+          <div class="skill-bar-bg"><div class="skill-bar" data-value="90"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header">
+            <span data-pt="Resolução de Conflitos" data-en="Conflict Resolution">Resolução de Conflitos</span>
+            <span>85%</span>
+          </div>
+          <div class="skill-bar-bg"><div class="skill-bar" data-value="85"></div></div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- Anime All -->
-    <div class="comm-card reveal reveal-delay-3">
-      <div class="comm-banner"></div>
-      <div class="comm-avatar-wrap">
-        <img class="comm-avatar" src="https://osein.vercel.app/assets/AL.webp" alt="Anime All"/>
+  <div class="divider"></div>
+
+  <section>
+    <div class="container fade-in">
+      <p class="section-title" data-pt="Servidores" data-en="Servers">Servidores</p>
+      <div class="servers-grid">
+
+        <div class="server-card">
+          <img class="server-img" src="https://osein.vercel.app/assets/Anime%20Crash.webp" alt="Anime Crash" />
+          <div class="server-name">Anime Crash</div>
+          <div class="server-role" data-pt="Moderador (Inativo)" data-en="Moderator (Retired)">Moderador (Inativo)</div>
+          <div class="server-desc" data-pt="Cuidei da moderação e mantive o chat organizado." data-en="Took care of moderation and kept the chat organized.">Cuidei da moderação e mantive o chat organizado.</div>
+          <a href="https://discord.gg/K5gSxMUsm" target="_blank" class="server-btn">
+            <svg class="discord-icon" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
+            <span data-pt="Entrar" data-en="Join">Entrar</span>
+          </a>
+        </div>
+
+        <div class="server-card">
+          <img class="server-img" src="https://osein.vercel.app/assets/Anime%20Brawl.png" alt="Anime Brawl" />
+          <div class="server-name">Anime Brawl</div>
+          <div class="server-role" data-pt="Moderador Trial" data-en="Trial Moderator">Moderador Trial</div>
+          <div class="server-desc" data-pt="Auxilio a equipe e ajudo no controle do servidor." data-en="I support the team and help manage the server.">Auxilio a equipe e ajudo no controle do servidor.</div>
+          <a href="https://discord.gg/xCN3kvCwzG" target="_blank" class="server-btn">
+            <svg class="discord-icon" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
+            <span data-pt="Entrar" data-en="Join">Entrar</span>
+          </a>
+        </div>
+
+        <div class="server-card">
+          <img class="server-img" src="https://osein.vercel.app/assets/AL.webp" alt="Anime All" />
+          <div class="server-name">Anime All</div>
+          <div class="server-role" data-pt="Moderador (Inativo)" data-en="Moderator (Retired)">Moderador (Inativo)</div>
+          <div class="server-desc" data-pt="Mantive as regras em dia e o ambiente organizado." data-en="Kept the rules up to date and the environment organized.">Mantive as regras em dia e o ambiente organizado.</div>
+          <a href="https://discord.com/invite/CkVnGNm3Ct" target="_blank" class="server-btn">
+            <svg class="discord-icon" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
+            <span data-pt="Entrar" data-en="Join">Entrar</span>
+          </a>
+        </div>
+
+        <div class="server-card">
+          <img class="server-img" src="https://cdn.discordapp.com/icons/1478021532969078908/9240e8e4521081a23596c62f30196aa2.png?size=2048" alt="Anime Paradise" />
+          <div class="server-name">Anime Paradise</div>
+          <div class="server-role" data-pt="Moderador" data-en="Moderator">Moderador</div>
+          <div class="server-desc" data-pt="Cuido da moderação e mantenho o chat organizado." data-en="I take care of moderation and keep the chat organized.">Cuido da moderação e mantenho o chat organizado.</div>
+          <a href="https://discord.gg/P8J8DzcvK3" target="_blank" class="server-btn">
+            <svg class="discord-icon" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
+            <span data-pt="Entrar" data-en="Join">Entrar</span>
+          </a>
+        </div>
+
       </div>
-      <div class="comm-body">
-        <div class="comm-name">Anime All</div>
-        <div class="comm-role">✦ Moderator (Retired)</div>
-        <p class="comm-desc">Uma das maiores comunidades de anime em português, reunindo fãs do Brasil e de Portugal.</p>
-        <a class="comm-btn" href="https://discord.com/invite/CkVnGNm3Ct" target="_blank" rel="noopener">
-          <span>↗</span> Explorar comunidade
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section>
+    <div class="container fade-in">
+      <p class="section-title" data-pt="Conecte comigo" data-en="Connect with me">Conecte comigo</p>
+      <div class="connect-card">
+        <h3 data-pt="Precisa de ajuda no seu servidor?" data-en="Need help with your server?">Precisa de ajuda no seu servidor?</h3>
+        <p data-pt="Pode me chamar no Discord. Fico feliz em ajudar com moderação ou organização da sua comunidade." data-en="Feel free to reach me on Discord. I'm happy to help with moderation or community organization.">
+          Pode me chamar no Discord. Fico feliz em ajudar com moderação ou organização da sua comunidade.
+        </p>
+        <a href="https://discord.com/users/1077000858342006867" target="_blank" class="connect-btn">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
+          <span data-pt="Falar no Discord" data-en="Message on Discord">Falar no Discord</span>
         </a>
       </div>
     </div>
+  </section>
 
-    <!-- Anime Paradise -->
-    <div class="comm-card reveal reveal-delay-4">
-      <div class="comm-banner"></div>
-      <div class="comm-avatar-wrap">
-        <img class="comm-avatar" src="https://cdn.discordapp.com/icons/1478021532969078908/9240e8e4521081a23596c62f30196aa2.png?size=2048" alt="Anime Paradise"/>
-      </div>
-      <div class="comm-body">
-        <div class="comm-name">Anime Paradise</div>
-        <div class="comm-role">✦ Moderator</div>
-        <p class="comm-desc">Comunidade dedicada a criar um espaço acolhedor e seguro para todos os fãs de anime.</p>
-        <a class="comm-btn" href="https://discord.gg/P8J8DzcvK3" target="_blank" rel="noopener">
-          <span>↗</span> Explorar comunidade
-        </a>
-      </div>
-    </div>
+</main>
 
-  </div>
-</section>
-
-<!-- ═══════════════════════ SKILLS ═══════════════════════ -->
-<section id="habilidades">
-  <div class="section-label reveal">Competências</div>
-  <h2 class="section-heading reveal reveal-delay-1">Minhas <span>habilidades</span></h2>
-  <span class="gradient-line reveal reveal-delay-1"></span>
-
-  <div class="skills-groups reveal reveal-delay-2">
-
-    <div>
-      <div class="skill-group-label">Moderação & Gestão</div>
-      <div class="skills-row">
-        <span class="skill-tag"><span class="skill-dot"></span> Moderação Discord</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Gestão de Comunidade</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Resolução de Conflitos</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Gestão de Equipes</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Criação de Regras</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Aplicação de Punições</span>
-      </div>
-    </div>
-
-    <div>
-      <div class="skill-group-label">Organização & Estrutura</div>
-      <div class="skills-row">
-        <span class="skill-tag"><span class="skill-dot"></span> Estruturação de Servidores</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Hierarquia de Cargos</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Organização de Canais</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Criação de Documentação</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Planejamento de Eventos</span>
-      </div>
-    </div>
-
-    <div>
-      <div class="skill-group-label">Soft Skills</div>
-      <div class="skills-row">
-        <span class="skill-tag"><span class="skill-dot"></span> Comunicação Eficaz</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Liderança</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Empatia</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Tomada de Decisão</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Proatividade</span>
-        <span class="skill-tag"><span class="skill-dot"></span> Trabalho em Equipe</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ═══════════════════════ CONTACT ═══════════════════════ -->
-<section id="contato">
-  <div class="contact-card reveal">
-    <div class="contact-icon">💬</div>
-    <h2 class="contact-title">Precisa de uma mãozinha no seu servidor?</h2>
-    <p class="contact-body">
-      Me mande uma mensagem! Terei o maior prazer em ouvir as necessidades da sua comunidade e ver como posso ajudar.
-    </p>
-    <a href="https://discord.com/users/1077000858342006867" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:.95rem;padding:15px 36px;border-radius:16px;">
-      <span class="btn-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="display:block">
-          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
-        </svg>
-      </span>
-      Vamos conversar no Discord
-    </a>
-  </div>
-</section>
-
-<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
 <footer>
-  <div class="footer-inner">
-    <span>©</span>
-    <span id="footer-year"></span>
-    <span class="footer-name">oSein</span>
-    <span>—</span>
-    <span>Discord Moderator &amp; Community Manager</span>
+  <div class="container">
+    <span>© 2026 oSein — Discord Moderator &amp; Community Manager</span>
   </div>
 </footer>
 
-</div><!-- /content-wrap -->
-
 <script>
-/* ── YEAR ── */
-document.getElementById('footer-year').textContent = new Date().getFullYear();
+  const cursor = document.getElementById('cursor');
+  let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
 
-/* ── CURSOR ── */
-const dot  = document.getElementById('cursor-dot');
-const ring = document.getElementById('cursor-ring');
-let mx = -100, my = -100, rx = -100, ry = -100;
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-(function tickCursor(){
-  rx += (mx - rx) * .14;
-  ry += (my - ry) * .14;
-  dot.style.left  = mx + 'px';
-  dot.style.top   = my + 'px';
-  ring.style.left = rx + 'px';
-  ring.style.top  = ry + 'px';
-  requestAnimationFrame(tickCursor);
-})();
-document.querySelectorAll('a,button,.skill-tag,.comm-card,.service-card').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-});
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
 
-/* ── PARTICLES CANVAS ── */
-const canvas = document.getElementById('bg-canvas');
-const ctx    = canvas.getContext('2d');
-let W, H, particles = [];
+  function animateCursor() {
+    curX += (mouseX - curX) * 0.13;
+    curY += (mouseY - curY) * 0.13;
+    cursor.style.left = curX + 'px';
+    cursor.style.top = curY + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
 
-function resize(){
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-function Particle(){
-  this.reset = function(){
-    this.x  = Math.random() * W;
-    this.y  = Math.random() * H;
-    this.r  = Math.random() * 1.4 + .3;
-    this.vx = (Math.random() - .5) * .25;
-    this.vy = (Math.random() - .5) * .25;
-    this.a  = Math.random() * .4 + .1;
-    this.da = (Math.random() - .5) * .003;
-    this.type = Math.random() > .85 ? 'diamond' : 'dot';
-  };
-  this.reset();
-}
-for(let i = 0; i < 90; i++) particles.push(new Particle());
-
-/* occasional spark lines */
-let lines = [];
-function SparkLine(){
-  this.x1 = Math.random() * W; this.y1 = Math.random() * H;
-  this.x2 = this.x1 + (Math.random()-0.5)*120;
-  this.y2 = this.y1 + (Math.random()-0.5)*120;
-  this.a  = .12; this.da = -.0008;
-}
-
-function drawScene(){
-  ctx.clearRect(0, 0, W, H);
-
-  /* radial glow centers */
-  const gl1 = ctx.createRadialGradient(W*.15,H*.2,0,W*.15,H*.2,W*.4);
-  gl1.addColorStop(0,'rgba(90,90,140,.06)'); gl1.addColorStop(1,'transparent');
-  ctx.fillStyle = gl1; ctx.fillRect(0,0,W,H);
-  const gl2 = ctx.createRadialGradient(W*.85,H*.75,0,W*.85,H*.75,W*.35);
-  gl2.addColorStop(0,'rgba(70,70,120,.05)'); gl2.addColorStop(1,'transparent');
-  ctx.fillStyle = gl2; ctx.fillRect(0,0,W,H);
-
-  /* spark lines */
-  if(Math.random() < .005) lines.push(new SparkLine());
-  lines = lines.filter(l => l.a > 0);
-  lines.forEach(l => {
-    ctx.beginPath(); ctx.moveTo(l.x1,l.y1); ctx.lineTo(l.x2,l.y2);
-    ctx.strokeStyle = `rgba(180,180,210,${l.a})`;
-    ctx.lineWidth = .6; ctx.stroke(); l.a += l.da;
+  document.querySelectorAll('a, button, .server-card, .about-card, .connect-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
   });
 
-  /* particles */
-  particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy; p.a += p.da;
-    if(p.a <= 0 || p.a >= .55) p.da *= -1;
-    if(p.x < -10 || p.x > W+10 || p.y < -10 || p.y > H+10) p.reset();
-
-    ctx.save();
-    ctx.globalAlpha = p.a;
-    if(p.type === 'diamond'){
-      ctx.translate(p.x, p.y); ctx.rotate(Math.PI/4);
-      ctx.strokeStyle = 'rgba(200,200,220,.6)'; ctx.lineWidth = .7;
-      const s = p.r * 2.8;
-      ctx.strokeRect(-s/2, -s/2, s, s);
-    } else {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(200,200,220,.7)'; ctx.fill();
-    }
-    ctx.restore();
+  const themeBtn = document.getElementById('themeBtn');
+  themeBtn.addEventListener('click', () => {
+    const html = document.documentElement;
+    const isLight = html.dataset.theme === 'light';
+    html.dataset.theme = isLight ? 'dark' : 'light';
+    themeBtn.textContent = isLight ? '☀' : '☾';
   });
 
-  requestAnimationFrame(drawScene);
-}
-drawScene();
-
-/* ── SCROLL REVEAL ── */
-const revealEls = document.querySelectorAll('.reveal');
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-}, { threshold: .12 });
-revealEls.forEach(el => io.observe(el));
-
-/* ── COMMUNITY CARD 3D TILT ── */
-document.querySelectorAll('.comm-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width  - .5;
-    const y = (e.clientY - r.top)  / r.height - .5;
-    card.style.transform = `translateY(-8px) scale(1.02) rotateY(${x*8}deg) rotateX(${-y*6}deg)`;
+  const langBtn = document.getElementById('langBtn');
+  let lang = 'pt';
+  langBtn.addEventListener('click', () => {
+    lang = lang === 'pt' ? 'en' : 'pt';
+    langBtn.textContent = lang === 'pt' ? 'EN' : 'PT';
+    document.querySelectorAll('[data-pt]').forEach(el => {
+      el.textContent = el.dataset[lang];
+    });
   });
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = '';
-  });
-});
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        entry.target.querySelectorAll('.skill-bar').forEach(bar => {
+          bar.style.width = bar.dataset.value + '%';
+        });
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  document.querySelector('.hero .fade-in')?.classList.add('visible');
 </script>
 </body>
 </html>
