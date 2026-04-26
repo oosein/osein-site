@@ -1,458 +1,509 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>oSein • Moderator</title>
+    <title>oSein - Discord Moderator</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
-
         :root {
-            --bg: #0a0a0a;
-            --card: #121212;
+            /* Dark theme */
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #1f1f1f;
+            --text-primary: #e5e5e5;
+            --text-secondary: #b0b0b0;
             --accent: #aaaaaa;
-            --text: #e0e0e0;
-            --text-light: #888888;
+            --glow: rgba(170, 170, 170, 0.3);
+            --border: #2a2a2a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [data-theme="light"] {
+            --bg-primary: #f8f8f8;
+            --bg-secondary: #e5e5e5;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --accent: #666666;
+            --glow: rgba(170, 170, 170, 0.4);
+            --border: #d0d0d0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Inter', system_ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
             overflow-x: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Cursor */
+        /* Cursor Custom */
+        body.custom-cursor {
+            cursor: none;
+        }
+
         .cursor {
             position: fixed;
-            width: 28px;
-            height: 28px;
-            border: 2px solid #aaaaaa;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px #aaaaaa;
             mix-blend-mode: difference;
-            opacity: 0.8;
-            transition: width 0.25s ease, height 0.25s ease;
+            transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px var(--glow);
+            will-change: transform;
         }
 
         .cursor.hover {
-            width: 46px;
-            height: 46px;
-            background: rgba(170,170,170,0.1);
+            transform: scale(1.5);
+            box-shadow: 0 0 30px var(--glow);
         }
 
-        header {
+        /* Background */
+        .bg-gradient {
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
-            padding: 1.8rem 6%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10,10,10,0.8);
-            backdrop-filter: blur(12px);
-            z-index: 1000;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(170,170,170,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(170,170,170,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(170,170,170,0.04) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 25s ease-in-out infinite;
         }
 
-        .logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 600;
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-15px) rotate(120deg); }
+            66% { transform: translateY(8px) rotate(240deg); }
         }
 
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0 4rem;
             text-align: center;
-            background: radial-gradient(circle at center, rgba(170,170,170,0.06) 0%, transparent 70%);
+            position: relative;
         }
 
         .avatar-container {
             position: relative;
-            width: 210px;
-            height: 210px;
-            margin-bottom: 2rem;
+            display: inline-block;
+            margin-bottom: 1.5rem;
         }
 
         .avatar {
-            width: 100%;
-            height: 100%;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
-            border: 6px solid #1a1a1a;
-            box-shadow: 0 0 60px rgba(170,170,170,0.35);
-            transition: transform 0.6s ease;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 30px var(--glow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .avatar-ring {
-            position: absolute;
-            inset: -18px;
-            border: 1px solid rgba(170,170,170,0.3);
-            border-radius: 50%;
-            animation: ringRotate 32s linear infinite;
+        .avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 35px 70px rgba(0,0,0,0.5), 0 0 40px var(--glow);
         }
 
-        .orbit {
+        .avatar-orbit {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 28px;
-            height: 28px;
-            background: #aaaaaa;
+            width: 180px;
+            height: 180px;
+            border: 1px solid var(--accent);
             border-radius: 50%;
-            box-shadow: 0 0 18px #aaaaaa;
-            opacity: 0.7;
-            animation: orbit 22s linear infinite;
+            transform: translate(-50%, -50%);
+            opacity: 0.25;
+            animation: rotate 15s linear infinite;
         }
 
-        .hero h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 4rem;
-            font-weight: 600;
-            letter-spacing: -0.04em;
+        .avatar-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.5;
+            animation: orbit 5s linear infinite;
+            box-shadow: 0 0 12px var(--glow);
         }
 
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-light);
-            margin-top: 1rem;
-        }
-
-        section {
-            padding: 100px 6%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 3.5rem;
-        }
-
-        /* Habilidades - estilo da imagem */
-        .skills-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.4rem;
-            max-width: 780px;
-            margin: 0 auto;
-        }
-
-        .skill {
-            background: var(--card);
-            padding: 1.2rem 1.8rem;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .skill:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 40px rgba(170,170,170,0.15);
-        }
-
-        .skill-name {
-            font-weight: 500;
-            min-width: 180px;
-        }
-
-        .skill-bar {
-            flex: 1;
-            height: 8px;
-            background: #222;
-            border-radius: 9999px;
-            margin: 0 2rem;
-            overflow: hidden;
-        }
-
-        .skill-fill {
-            height: 100%;
-            background: linear-gradient(to right, #aaaaaa, #cccccc);
-            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .skill-percent {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--accent);
-            min-width: 50px;
-            text-align: right;
-        }
-
-        /* Servidores - estilo exato da imagem */
-        .servers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .server-card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .server-card:hover {
-            transform: translateY(-12px) scale(1.04);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        }
-
-        .server-icon {
-            width: 92px;
-            height: 92px;
-            margin: 0 auto 1.2rem;
-            border-radius: 16px;
-            object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        .server-name {
-            font-size: 1.35rem;
-            font-weight: 600;
-            margin-bottom: 0.6rem;
-        }
-
-        .server-role {
-            display: inline-block;
-            background: rgba(170,170,170,0.1);
-            color: var(--accent);
-            padding: 6px 16px;
-            border-radius: 9999px;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .server-desc {
-            color: var(--text-light);
-            font-size: 0.97rem;
-            line-height: 1.6;
-            margin-bottom: 1.8rem;
-            min-height: 80px;
-        }
-
-        .enter-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #1f1f1f;
-            color: #aaaaaa;
-            border: 1px solid #333;
-            padding: 12px 28px;
-            border-radius: 9999px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .enter-btn:hover {
-            background: #2a2a2a;
-            border-color: #aaaaaa;
-            color: #e0e0e0;
-            transform: translateY(-2px);
-        }
-
-        .connect-section {
-            background: var(--card);
-            max-width: 520px;
-            margin: 0 auto;
-            padding: 4rem 2.5rem;
-            border-radius: 24px;
-            text-align: center;
-        }
-
-        .discord-btn {
-            background: #1f1f1f;
-            color: #aaaaaa;
-            border: 1px solid #444;
-            padding: 16px 36px;
-            border-radius: 9999px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .discord-btn:hover {
-            background: #2a2a2a;
-            border-color: #aaaaaa;
-            color: white;
-        }
-
-        footer {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
-        }
-
-        @keyframes ringRotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         @keyframes orbit {
-            from { transform: translate(-50%, -50%) rotate(0deg) translateX(125px) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg) translateX(125px) rotate(-360deg); }
+            0% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+            50% { transform: translateX(-50%) translateY(-65px) rotate(180deg); }
+            100% { transform: translateX(-50%) translateY(0) rotate(360deg); }
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Theme & Language Toggle */
+        .toggles {
+            display: flex;
+            gap: 1.2rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            cursor: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 40px var(--glow);
+            border-color: var(--accent);
+        }
+
+        /* Sections */
+        section {
+            padding: 5rem 0;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        section.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section h2 {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 4rem;
+            font-weight: 600;
+        }
+
+        /* About */
+        .about-container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 3.5rem;
+            border-radius: 28px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .about-container p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.85;
+        }
+
+        /* Skills */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .skill-item {
+            background: var(--bg-card);
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            text-align: center;
+            cursor: none;
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 12px 45px rgba(0,0,0,0.15);
+        }
+
+        .skill-item:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 25px 70px var(--glow);
+            border-color: var(--accent);
+        }
+
+        .skill-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+
+        .skill-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 1.2rem;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--text-primary));
+            border-radius: 12px;
+            width: 0%;
+            transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .skill-item:hover .skill-progress {
+            width: var(--progress);
+        }
+
+        /* Servers */
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+
+        .server-card {
+            background: var(--bg-card);
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            cursor: none;
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .server-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 35px 90px var(--glow);
+            border-color: var(--accent);
+        }
+
+        .server-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .server-content {
+            padding: 2.2rem;
+        }
+
+        .server-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--text-primary);
+        }
+
+        .server-role {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1.2rem;
+        }
+
+        .server-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.8rem;
+        }
+
+        /* Connect */
+        .connect-container {
+            max-width: 550px;
+            margin: 4rem auto 0;
+            background: var(--bg-card);
+            padding: 3.5rem;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+        }
+
+        .connect-container h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .connect-container p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .discord-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 2rem;
+            filter: brightness(1.1) contrast(1.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .connect-container:hover .discord-icon {
+            filter: brightness(1.4) drop-shadow(0 0 20px var(--glow));
+            transform: scale(1.1);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 1.1rem 2.4rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            cursor: none;
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 20px 60px var(--glow);
+            border-color: var(--accent);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            margin-top: 6rem;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0 18px; }
+            .toggles { flex-direction: column; align-items: center; gap: 1rem; }
+            .about-container, .connect-container { padding: 2.5rem 2rem; margin: 0 1rem; }
+            section { padding: 3rem 0; }
+            section h2 { font-size: 2.2rem; }
+            .servers-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
-<body>
-
-    <!-- Cursor -->
+<body class="custom-cursor">
+    <div class="bg-gradient"></div>
+    
     <div class="cursor" id="cursor"></div>
 
-    <header>
-        <div class="logo"># oSein</div>
-    </header>
+    <div class="container">
+        <!-- Header -->
+        <header class="fade-in">
+            <div class="avatar-container">
+                <div class="avatar-orbit"></div>
+                <div class="avatar-particle"></div>
+                <img src="https://i.pinimg.com/736x/93/c6/6e/93c66e735b6c02afb07c3ba23480dfd7.jpg" alt="oSein" class="avatar">
+            </div>
+            <h1>oSein</h1>
+            <p class="subtitle" data-pt="Discord Moderator" data-en="Discord Moderator">Discord Moderator</p>
+            
+            <div class="toggles">
+                <button class="toggle-btn" id="themeToggle" data-pt="Modo Claro" data-en="Light Mode">Modo Claro</button>
+                <button class="toggle-btn" id="langToggle" data-pt="English" data-en="Português">English</button>
+            </div>
+        </header>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="avatar-container">
-            <div class="avatar-ring"></div>
-            <img src="https://i.pinimg.com/736x/93/c6/6e/93c66e735b6c02afb07c3ba23480dfd7.jpg" alt="oSein" class="avatar">
-            <div class="orbit"></div>
-        </div>
-        <h1>oSein</h1>
-        <p>Discord Moderator em comunidades de Anime</p>
-    </section>
-
-    <!-- Habilidades -->
-    <section id="habilidades">
-        <h2>Habilidades</h2>
-        <div class="skills-container">
-            <div class="skill">
-                <div class="skill-name">Moderação</div>
-                <div class="skill-bar"><div class="skill-fill" style="width: 92%"></div></div>
-                <div class="skill-percent">92%</div>
-            </div>
-            <div class="skill">
-                <div class="skill-name">Gestão de Comunidade</div>
-                <div class="skill-bar"><div class="skill-fill" style="width: 85%"></div></div>
-                <div class="skill-percent">85%</div>
-            </div>
-            <div class="skill">
-                <div class="skill-name">Resolução de Conflitos</div>
-                <div class="skill-bar"><div class="skill-fill" style="width: 78%"></div></div>
-                <div class="skill-percent">78%</div>
-            </div>
-            <div class="skill">
-                <div class="skill-name">Comunicação</div>
-                <div class="skill-bar"><div class="skill-fill" style="width: 88%"></div></div>
-                <div class="skill-percent">88%</div>
-            </div>
-            <div class="skill">
-                <div class="skill-name">Organização</div>
-                <div class="skill-bar"><div class="skill-fill" style="width: 70%"></div></div>
-                <div class="skill-percent">70%</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Servidores -->
-    <section id="servidores">
-        <h2>Servidores</h2>
-        <div class="servers-grid">
-            <!-- Anime Crash -->
-            <div class="server-card">
-                <img src="https://osein.vercel.app/assets/Anime%20Crash.webp" class="server-icon" alt="Anime Crash">
-                <div class="server-name">Anime Crash</div>
-                <div class="server-role">Mod. Aposentado</div>
-                <div class="server-desc">Já atuei na moderação ajudando a manter o servidor organizado.</div>
-                <a href="https://discord.gg/K5gSxMUsm" target="_blank" class="enter-btn">
-                    <span>Discord</span> Entrar
-                </a>
+        <!-- About -->
+        <section id="about" class="fade-in">
+            <h2 data-pt="Sobre Mim" data-en="About Me">Sobre Mim</h2>
+            <div class="about-container">
+                <p data-pt="Sou moderador de Discord com experiência em vários servidores de anime. Mantenho a ordem, resolvo conflitos e ajudo a comunidade a crescer de forma saudável. Sempre atendo com respeito e eficiência." 
+                   data-en="Discord moderator with experience across anime servers. I keep things organized, resolve conflicts, and help communities grow healthily. Always professional and efficient.">
+                    Sou moderador de Discord com experiência em vários servidores de anime. Mantenho a ordem, resolvo conflitos e ajudo a comunidade a crescer de forma saudável. Sempre atendo com respeito e eficiência.
+                </p>
             </div>
 
-            <!-- Anime Brawl -->
-            <div class="server-card">
-                <img src="https://osein.vercel.app/assets/Anime%20Brawl.png" class="server-icon" alt="Anime Brawl">
-                <div class="server-name">Anime Brawl</div>
-                <div class="server-role">Trial Moderator</div>
-                <div class="server-desc">Auxilio na moderação e dou suporte à equipe no dia a dia.</div>
-                <a href="https://discord.gg/xCN3kvCwzG" target="_blank" class="enter-btn">
-                    <span>Discord</span> Entrar
-                </a>
-            </div>
-
-            <!-- Anime All -->
-            <div class="server-card">
-                <img src="https://osein.vercel.app/assets/AL.webp" class="server-icon" alt="Anime All">
-                <div class="server-name">Anime All</div>
-                <div class="server-role">Mod. Aposentado</div>
-                <div class="server-desc">Fiz parte da equipe de moderação e ajudei na organização do chat.</div>
-                <a href="https://discord.com/invite/CkVnGNm3Ct" target="_blank" class="enter-btn">
-                    <span>Discord</span> Entrar
-                </a>
-            </div>
-
-            <!-- Anime Paradise -->
-            <div class="server-card">
-                <img src="https://cdn.discordapp.com/icons/1478021532969078908/9240e8e4521081a23596c62f30196aa2.png?size=2048" class="server-icon" alt="Anime Paradise">
-                <div class="server-name">Anime Paradise</div>
-                <div class="server-role">Moderator</div>
-                <div class="server-desc">Cuido da moderação e mantenho o chat tranquilo e organizado.</div>
-                <a href="https://discord.gg/P8J8DzcvK3" target="_blank" class="enter-btn">
-                    <span>Discord</span> Entrar
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Conecte -->
-    <section id="conecte">
-        <div class="connect-section">
-            <h2>Conecte comigo</h2>
-            <p style="color: var(--text-light); margin: 1.5rem 0;">Precisa de ajuda no seu servidor?<br>Pode me chamar no Discord.</p>
-            <a href="https://discord.com/users/1077000858342006867" target="_blank" class="discord-btn">
-                Adicionar no Discord
-            </a>
-        </div>
-    </section>
-
-    <footer>
-        © 2026 oSein - Discord Moderator
-    </footer>
-
-    <script>
-        // Cursor com delay
-        const cursor = document.getElementById('cursor');
-        let x = 0, y = 0;
-        let targetX = 0, targetY = 0;
-
-        document.addEventListener('mousemove', e => {
-            targetX = e.clientX;
-            targetY = e.clientY;
-        });
-
-        function animate() {
-            x += (targetX - x) * 0.14;
-            y += (targetY - y) * 0.14;
-            cursor.style.left = `${x}px`;
-            cursor.style.top = `${y}px`;
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        // Hover effect no cursor
-        document.querySelectorAll('a, .server-card, .skill').forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-        });
-    </script>
-</body>
-</html>
+            <div class="skills-grid">
+                <div class="skill-item">
+                    <h3 data-pt="Moderação" data-en="Moderation">Moderação</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="--progress: 95%;"></div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <h3 data-pt="Comunicação" data-en="Communication">Comunicação</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="--progress: 90%;"></div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <h3 data-pt="Resolução" data-en="Problem Solving">Resolução</h3>
+                    <
