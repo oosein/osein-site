@@ -5,39 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>oSein • Moderator</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
 
         :root {
-            --bg: #0f0f0f;
-            --card: #1a1a1a;
+            --bg: #0a0a0a;
+            --card: #121212;
             --accent: #aaaaaa;
-            --text: #e5e5e5;
-            --text-light: #aaaaaa;
+            --text: #e0e0e0;
+            --text-light: #888888;
         }
 
-        [data-theme="light"] {
-            --bg: #f5f5f5;
-            --card: #ffffff;
-            --accent: #666666;
-            --text: #1a1a1a;
-            --text-light: #555555;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', system_ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             overflow-x: hidden;
-            line-height: 1.6;
-            transition: background 0.6s ease;
         }
 
+        /* Cursor */
         .cursor {
             position: fixed;
             width: 28px;
@@ -47,106 +34,52 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
-            box-shadow: 0 0 15px #aaaaaa;
+            box-shadow: 0 0 20px #aaaaaa;
             mix-blend-mode: difference;
-            opacity: 0.7;
+            opacity: 0.8;
+            transition: width 0.25s ease, height 0.25s ease;
         }
 
         .cursor.hover {
-            width: 42px;
-            height: 42px;
-            background: rgba(170, 170, 170, 0.15);
+            width: 46px;
+            height: 46px;
+            background: rgba(170,170,170,0.1);
         }
 
         header {
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: 1.5rem 5%;
+            width: 100%;
+            padding: 1.8rem 6%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(15, 15, 15, 0.7);
+            background: rgba(10,10,10,0.8);
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(170, 170, 170, 0.1);
-            transition: all 0.4s ease;
-        }
-
-        [data-theme="light"] header {
-            background: rgba(245, 245, 245, 0.7);
+            z-index: 1000;
         }
 
         .logo {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 600;
-            letter-spacing: -0.02em;
-            color: var(--text);
-        }
-
-        nav {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        nav a {
-            color: var(--text-light);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        nav a:hover {
-            color: var(--accent);
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .btn-toggle {
-            background: var(--card);
-            border: 1px solid rgba(170, 170, 170, 0.2);
-            color: var(--text-light);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-toggle:hover {
-            border-color: var(--accent);
-            color: var(--text);
         }
 
         .hero {
             height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
-            background: radial-gradient(circle at center, rgba(170,170,170,0.08) 0%, transparent 70%);
-        }
-
-        .hero-content {
             text-align: center;
-            max-width: 720px;
-            padding: 0 2rem;
-            z-index: 2;
+            background: radial-gradient(circle at center, rgba(170,170,170,0.06) 0%, transparent 70%);
         }
 
         .avatar-container {
             position: relative;
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 2.5rem;
+            width: 210px;
+            height: 210px;
+            margin-bottom: 2rem;
         }
 
         .avatar {
@@ -154,207 +87,217 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--card);
-            box-shadow: 0 0 40px rgba(170, 170, 170, 0.25);
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 6px solid #1a1a1a;
+            box-shadow: 0 0 60px rgba(170,170,170,0.35);
+            transition: transform 0.6s ease;
         }
 
         .avatar-ring {
             position: absolute;
-            top: -12px;
-            left: -12px;
-            right: -12px;
-            bottom: -12px;
-            border: 1px solid rgba(170, 170, 170, 0.3);
+            inset: -18px;
+            border: 1px solid rgba(170,170,170,0.3);
             border-radius: 50%;
-            animation: ringRotate 25s linear infinite;
+            animation: ringRotate 32s linear infinite;
         }
 
         .orbit {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             background: #aaaaaa;
             border-radius: 50%;
-            box-shadow: 0 0 12px #aaaaaa;
-            animation: orbit 18s linear infinite;
-            opacity: 0.6;
+            box-shadow: 0 0 18px #aaaaaa;
+            opacity: 0.7;
+            animation: orbit 22s linear infinite;
         }
 
         .hero h1 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 3.8rem;
+            font-size: 4rem;
             font-weight: 600;
-            line-height: 1.05;
             letter-spacing: -0.04em;
-            margin-bottom: 1rem;
         }
 
         .hero p {
             font-size: 1.25rem;
             color: var(--text-light);
-            max-width: 520px;
-            margin: 0 auto;
+            margin-top: 1rem;
         }
 
         section {
-            padding: 8rem 5%;
-            max-width: 1100px;
+            padding: 100px 6%;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         h2 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.4rem;
-            margin-bottom: 3rem;
+            font-size: 2.5rem;
             text-align: center;
-            position: relative;
+            margin-bottom: 3.5rem;
         }
 
-        h2:after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 2px;
-            background: linear-gradient(to right, transparent, var(--accent), transparent);
-        }
-
-        .about {
-            background: var(--card);
-            border-radius: 24px;
-            padding: 4rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        /* Habilidades - estilo da imagem */
+        .skills-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
             max-width: 780px;
             margin: 0 auto;
-            text-align: center;
         }
 
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .skill-card {
+        .skill {
             background: var(--card);
-            padding: 1.8rem;
+            padding: 1.2rem 1.8rem;
             border-radius: 16px;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            border: 1px solid rgba(170, 170, 170, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
 
-        .skill-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(170, 170, 170, 0.15);
+        .skill:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(170,170,170,0.15);
+        }
+
+        .skill-name {
+            font-weight: 500;
+            min-width: 180px;
         }
 
         .skill-bar {
-            height: 6px;
-            background: rgba(170, 170, 170, 0.15);
+            flex: 1;
+            height: 8px;
+            background: #222;
             border-radius: 9999px;
+            margin: 0 2rem;
             overflow: hidden;
-            margin-top: 1rem;
         }
 
         .skill-fill {
             height: 100%;
             background: linear-gradient(to right, #aaaaaa, #cccccc);
-            width: 0%;
-            transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        .skill-percent {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--accent);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Servidores - estilo exato da imagem */
         .servers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
         }
 
         .server-card {
             background: var(--card);
             border-radius: 20px;
-            overflow: hidden;
+            padding: 2rem 1.5rem;
+            text-align: center;
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            border: 1px solid rgba(170, 170, 170, 0.1);
         }
 
         .server-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            transform: translateY(-12px) scale(1.04);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
         }
 
-        .server-img {
-            width: 100%;
-            height: 160px;
+        .server-icon {
+            width: 92px;
+            height: 92px;
+            margin: 0 auto 1.2rem;
+            border-radius: 16px;
             object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
 
-        .server-content {
-            padding: 1.5rem;
+        .server-name {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
         }
 
         .server-role {
-            font-size: 0.85rem;
-            padding: 4px 12px;
-            background: rgba(170, 170, 170, 0.1);
-            border-radius: 9999px;
             display: inline-block;
-            margin-bottom: 0.8rem;
+            background: rgba(170,170,170,0.1);
             color: var(--accent);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .server-desc {
+            color: var(--text-light);
+            font-size: 0.97rem;
+            line-height: 1.6;
+            margin-bottom: 1.8rem;
+            min-height: 80px;
+        }
+
+        .enter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1f1f1f;
+            color: #aaaaaa;
+            border: 1px solid #333;
+            padding: 12px 28px;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .enter-btn:hover {
+            background: #2a2a2a;
+            border-color: #aaaaaa;
+            color: #e0e0e0;
+            transform: translateY(-2px);
         }
 
         .connect-section {
             background: var(--card);
             max-width: 520px;
             margin: 0 auto;
-            padding: 3.5rem 2.5rem;
+            padding: 4rem 2.5rem;
             border-radius: 24px;
             text-align: center;
-            border: 1px solid rgba(170, 170, 170, 0.15);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
         .discord-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            background: #5865F2;
-            color: white;
-            padding: 14px 32px;
+            background: #1f1f1f;
+            color: #aaaaaa;
+            border: 1px solid #444;
+            padding: 16px 36px;
             border-radius: 9999px;
             text-decoration: none;
             font-weight: 600;
-            margin-top: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(88, 101, 242, 0.3);
         }
 
         .discord-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(88, 101, 242, 0.45);
+            background: #2a2a2a;
+            border-color: #aaaaaa;
+            color: white;
         }
 
-        .footer {
+        footer {
             text-align: center;
-            padding: 3rem 5%;
+            padding: 3rem;
             color: var(--text-light);
-            font-size: 0.95rem;
-            border-top: 1px solid rgba(170, 170, 170, 0.1);
-        }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
         }
 
         @keyframes ringRotate {
@@ -363,295 +306,153 @@
         }
 
         @keyframes orbit {
-            from { transform: translate(-50%, -50%) rotate(0deg) translateX(110px) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg) translateX(110px) rotate(-360deg); }
-        }
-
-        .lang-btn {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-weight: 500;
-            cursor: pointer;
-            padding: 0.4rem 0.8rem;
+            from { transform: translate(-50%, -50%) rotate(0deg) translateX(125px) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg) translateX(125px) rotate(-360deg); }
         }
     </style>
 </head>
-<body data-theme="dark" data-lang="pt">
+<body>
 
     <!-- Cursor -->
-    <div class="cursor" id="customCursor"></div>
+    <div class="cursor" id="cursor"></div>
 
     <header>
         <div class="logo"># oSein</div>
-        <nav>
-            <a href="#sobre">Sobre</a>
-            <a href="#habilidades">Habilidades</a>
-            <a href="#servidores">Servidores</a>
-            <a href="#conecte">Contato</a>
-        </nav>
-        <div class="controls">
-            <button onclick="toggleLanguage()" class="lang-btn" id="langBtn">EN</button>
-            <button onclick="toggleTheme()" class="btn-toggle" id="themeBtn">☀️</button>
-        </div>
     </header>
 
     <!-- Hero -->
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <div class="avatar-container">
-                <div class="avatar-ring"></div>
-                <img src="https://i.pinimg.com/736x/93/c6/6e/93c66e735b6c02afb07c3ba23480dfd7.jpg" alt="oSein" class="avatar" id="avatar">
-                <div class="orbit" id="orbitDot"></div>
-            </div>
-            <h1>oSein</h1>
-            <p>Moderator experiente em comunidades de Anime no Discord.<br>Organizo, protejo e cuido para que tudo flua bem.</p>
+    <section class="hero">
+        <div class="avatar-container">
+            <div class="avatar-ring"></div>
+            <img src="https://i.pinimg.com/736x/93/c6/6e/93c66e735b6c02afb07c3ba23480dfd7.jpg" alt="oSein" class="avatar">
+            <div class="orbit"></div>
         </div>
-    </section>
-
-    <!-- Sobre -->
-    <section id="sobre">
-        <div class="about fade-in">
-            <h2>Sobre mim</h2>
-            <p style="font-size: 1.15rem; color: var(--text-light); max-width: 620px; margin: 0 auto;">
-                Cuido de comunidades com calma e atenção aos detalhes. 
-                Meu foco é manter o ambiente organizado, seguro e acolhedor para que os membros possam aproveitar ao máximo.
-            </p>
-            <p style="margin-top: 1.5rem; font-size: 1.15rem; color: var(--text-light); max-width: 620px; margin: 0 auto;">
-                Com experiência em vários servidores de anime, aprendi a equilibrar moderação firme com uma abordagem amigável.
-            </p>
-        </div>
+        <h1>oSein</h1>
+        <p>Discord Moderator em comunidades de Anime</p>
     </section>
 
     <!-- Habilidades -->
-    <section id="habilidades" style="background: var(--bg);">
+    <section id="habilidades">
         <h2>Habilidades</h2>
-        <div class="skills-grid">
-            <div class="skill-card fade-in">
-                <h3 style="margin-bottom: 0.5rem;">Moderação Ativa</h3>
-                <p style="color: var(--text-light);">Monitoramento constante e resolução rápida de conflitos.</p>
-                <div class="skill-bar"><div class="skill-fill" style="width: 92%;"></div></div>
+        <div class="skills-container">
+            <div class="skill">
+                <div class="skill-name">Moderação</div>
+                <div class="skill-bar"><div class="skill-fill" style="width: 92%"></div></div>
+                <div class="skill-percent">92%</div>
             </div>
-            <div class="skill-card fade-in">
-                <h3 style="margin-bottom: 0.5rem;">Organização de Cargos</h3>
-                <p style="color: var(--text-light);">Estrutura clara e hierarquia bem definida.</p>
-                <div class="skill-bar"><div class="skill-fill" style="width: 88%;"></div></div>
+            <div class="skill">
+                <div class="skill-name">Gestão de Comunidade</div>
+                <div class="skill-bar"><div class="skill-fill" style="width: 85%"></div></div>
+                <div class="skill-percent">85%</div>
             </div>
-            <div class="skill-card fade-in">
-                <h3 style="margin-bottom: 0.5rem;">Suporte à Equipe</h3>
-                <p style="color: var(--text-light);">Auxílio aos outros moderadores e treinamentos.</p>
-                <div class="skill-bar"><div class="skill-fill" style="width: 85%;"></div></div>
+            <div class="skill">
+                <div class="skill-name">Resolução de Conflitos</div>
+                <div class="skill-bar"><div class="skill-fill" style="width: 78%"></div></div>
+                <div class="skill-percent">78%</div>
             </div>
-            <div class="skill-card fade-in">
-                <h3 style="margin-bottom: 0.5rem;">Ambiente Saudável</h3>
-                <p style="color: var(--text-light);">Promoção de respeito e boas interações.</p>
-                <div class="skill-bar"><div class="skill-fill" style="width: 90%;"></div></div>
+            <div class="skill">
+                <div class="skill-name">Comunicação</div>
+                <div class="skill-bar"><div class="skill-fill" style="width: 88%"></div></div>
+                <div class="skill-percent">88%</div>
+            </div>
+            <div class="skill">
+                <div class="skill-name">Organização</div>
+                <div class="skill-bar"><div class="skill-fill" style="width: 70%"></div></div>
+                <div class="skill-percent">70%</div>
             </div>
         </div>
     </section>
 
     <!-- Servidores -->
-    <section id="servidores" style="background: var(--card);">
+    <section id="servidores">
         <h2>Servidores</h2>
-        <div class="servers-grid" id="serversContainer">
-            <!-- Preenchido via JS -->
+        <div class="servers-grid">
+            <!-- Anime Crash -->
+            <div class="server-card">
+                <img src="https://osein.vercel.app/assets/Anime%20Crash.webp" class="server-icon" alt="Anime Crash">
+                <div class="server-name">Anime Crash</div>
+                <div class="server-role">Mod. Aposentado</div>
+                <div class="server-desc">Já atuei na moderação ajudando a manter o servidor organizado.</div>
+                <a href="https://discord.gg/K5gSxMUsm" target="_blank" class="enter-btn">
+                    <span>Discord</span> Entrar
+                </a>
+            </div>
+
+            <!-- Anime Brawl -->
+            <div class="server-card">
+                <img src="https://osein.vercel.app/assets/Anime%20Brawl.png" class="server-icon" alt="Anime Brawl">
+                <div class="server-name">Anime Brawl</div>
+                <div class="server-role">Trial Moderator</div>
+                <div class="server-desc">Auxilio na moderação e dou suporte à equipe no dia a dia.</div>
+                <a href="https://discord.gg/xCN3kvCwzG" target="_blank" class="enter-btn">
+                    <span>Discord</span> Entrar
+                </a>
+            </div>
+
+            <!-- Anime All -->
+            <div class="server-card">
+                <img src="https://osein.vercel.app/assets/AL.webp" class="server-icon" alt="Anime All">
+                <div class="server-name">Anime All</div>
+                <div class="server-role">Mod. Aposentado</div>
+                <div class="server-desc">Fiz parte da equipe de moderação e ajudei na organização do chat.</div>
+                <a href="https://discord.com/invite/CkVnGNm3Ct" target="_blank" class="enter-btn">
+                    <span>Discord</span> Entrar
+                </a>
+            </div>
+
+            <!-- Anime Paradise -->
+            <div class="server-card">
+                <img src="https://cdn.discordapp.com/icons/1478021532969078908/9240e8e4521081a23596c62f30196aa2.png?size=2048" class="server-icon" alt="Anime Paradise">
+                <div class="server-name">Anime Paradise</div>
+                <div class="server-role">Moderator</div>
+                <div class="server-desc">Cuido da moderação e mantenho o chat tranquilo e organizado.</div>
+                <a href="https://discord.gg/P8J8DzcvK3" target="_blank" class="enter-btn">
+                    <span>Discord</span> Entrar
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Conecte -->
     <section id="conecte">
-        <div class="connect-section fade-in">
-            <h2 style="margin-bottom: 1rem;">Conecte comigo</h2>
-            <p style="color: var(--text-light); margin-bottom: 1.5rem;">Precisa de ajuda no seu servidor?<br>Me chame no Discord.</p>
-            
+        <div class="connect-section">
+            <h2>Conecte comigo</h2>
+            <p style="color: var(--text-light); margin: 1.5rem 0;">Precisa de ajuda no seu servidor?<br>Pode me chamar no Discord.</p>
             <a href="https://discord.com/users/1077000858342006867" target="_blank" class="discord-btn">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-                </svg>
                 Adicionar no Discord
             </a>
         </div>
     </section>
 
-    <footer class="footer">
+    <footer>
         © 2026 oSein - Discord Moderator
     </footer>
 
     <script>
-        // Dados dos servidores
-        const servers = [
-            {
-                name: "Anime Crash",
-                img: "https://osein.vercel.app/assets/Anime%20Crash.webp",
-                role: "Moderator (Retired)",
-                desc: "Cuido da moderação e mantenho o chat organizado.",
-                link: "https://discord.gg/K5gSxMUsm"
-            },
-            {
-                name: "Anime Brawl",
-                img: "https://osein.vercel.app/assets/Anime%20Brawl.png",
-                role: "Trial Moderator",
-                desc: "Auxilio a equipe e ajudo no controle do servidor.",
-                link: "https://discord.gg/xCN3kvCwzG"
-            },
-            {
-                name: "Anime All",
-                img: "https://osein.vercel.app/assets/AL.webp",
-                role: "Moderator (Retired)",
-                desc: "Participo ativamente da organização e eventos.",
-                link: "https://discord.com/invite/CkVnGNm3Ct"
-            },
-            {
-                name: "Anime Paradise",
-                img: "https://cdn.discordapp.com/icons/1478021532969078908/9240e8e4521081a23596c62f30196aa2.png?size=2048",
-                role: "Moderator",
-                desc: "Ajudo a manter o ambiente positivo e seguro.",
-                link: "https://discord.gg/P8J8DzcvK3"
-            }
-        ];
+        // Cursor com delay
+        const cursor = document.getElementById('cursor');
+        let x = 0, y = 0;
+        let targetX = 0, targetY = 0;
 
-        // Renderizar servidores
-        function renderServers() {
-            const container = document.getElementById('serversContainer');
-            container.innerHTML = '';
-            
-            servers.forEach(server => {
-                const card = document.createElement('div');
-                card.className = 'server-card fade-in';
-                card.innerHTML = `
-                    <img src="${server.img}" alt="${server.name}" class="server-img">
-                    <div class="server-content">
-                        <div class="server-role">${server.role}</div>
-                        <h3 style="margin-bottom: 0.6rem; font-size: 1.25rem;">${server.name}</h3>
-                        <p style="color: var(--text-light); font-size: 0.98rem; margin-bottom: 1.2rem;">${server.desc}</p>
-                        <a href="${server.link}" target="_blank" style="display: inline-block; padding: 10px 24px; background: rgba(170,170,170,0.1); color: var(--accent); text-decoration: none; border-radius: 9999px; font-size: 0.9rem; transition: all 0.3s ease;">Acessar servidor →</a>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+        document.addEventListener('mousemove', e => {
+            targetX = e.clientX;
+            targetY = e.clientY;
+        });
+
+        function animate() {
+            x += (targetX - x) * 0.14;
+            y += (targetY - y) * 0.14;
+            cursor.style.left = `${x}px`;
+            cursor.style.top = `${y}px`;
+            requestAnimationFrame(animate);
         }
+        animate();
 
-        // Cursor customizado
-        function initCursor() {
-            const cursor = document.getElementById('customCursor');
-            let posX = 0, posY = 0;
-            let mouseX = 0, mouseY = 0;
-            
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
-
-            function animateCursor() {
-                posX += (mouseX - posX) * 0.12; // delay leve
-                posY += (mouseY - posY) * 0.12;
-                
-                cursor.style.left = posX + 'px';
-                cursor.style.top = posY + 'px';
-                
-                requestAnimationFrame(animateCursor);
-            }
-            
-            animateCursor();
-
-            // Hover effects
-            const hoverables = document.querySelectorAll('a, button, .skill-card, .server-card');
-            hoverables.forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-            });
-        }
-
-        // Animação do avatar (pulso leve)
-        function avatarPulse() {
-            const avatar = document.getElementById('avatar');
-            let scale = 1;
-            
-            setInterval(() => {
-                scale = scale === 1 ? 1.03 : 1;
-                avatar.style.transform = `scale(${scale})`;
-            }, 2800);
-        }
-
-        // Theme toggle
-        function toggleTheme() {
-            const body = document.body;
-            const isDark = body.getAttribute('data-theme') === 'dark';
-            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            
-            const btn = document.getElementById('themeBtn');
-            btn.textContent = isDark ? '☀️' : '🌙';
-        }
-
-        // Language toggle (simples PT/EN)
-        let currentLang = 'pt';
-        
-        const translations = {
-            pt: {
-                title: "oSein • Moderator",
-                aboutTitle: "Sobre mim",
-                skillsTitle: "Habilidades",
-                serversTitle: "Servidores",
-                connectTitle: "Conecte comigo"
-            },
-            en: {
-                title: "oSein • Moderator",
-                aboutTitle: "About me",
-                skillsTitle: "Skills",
-                serversTitle: "Servers",
-                connectTitle: "Get in touch"
-            }
-        };
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'pt' ? 'en' : 'pt';
-            document.getElementById('langBtn').textContent = currentLang.toUpperCase();
-            
-            // Atualiza textos principais
-            document.querySelectorAll('h2').forEach(h2 => {
-                if (h2.textContent.includes('Sobre')) h2.textContent = currentLang === 'pt' ? 'Sobre mim' : 'About me';
-                if (h2.textContent.includes('Habilidades')) h2.textContent = currentLang === 'pt' ? 'Habilidades' : 'Skills';
-                if (h2.textContent.includes('Servidores')) h2.textContent = currentLang === 'pt' ? 'Servidores' : 'Servers';
-            });
-            
-            const connectH2 = document.querySelector('#conecte h2');
-            if (connectH2) connectH2.textContent = currentLang === 'pt' ? 'Conecte comigo' : 'Get in touch';
-        }
-
-        // Fade in on scroll
-        function handleScroll() {
-            const elements = document.querySelectorAll('.fade-in');
-            elements.forEach(el => {
-                const rect = el.getBoundingClientRect();
-                if (rect.top <= window.innerHeight * 0.85) {
-                    el.classList.add('visible');
-                }
-            });
-        }
-
-        // Inicialização
-        window.onload = function() {
-            renderServers();
-            initCursor();
-            avatarPulse();
-            
-            // Scroll handler
-            window.addEventListener('scroll', handleScroll);
-            handleScroll(); // initial check
-            
-            // Tecla ESC para reset cursor (opcional)
-            document.addEventListener('keydown', (e) => {
-                if (e.key === "Escape") {
-                    document.getElementById('customCursor').style.opacity = 0;
-                    setTimeout(() => document.getElementById('customCursor').style.opacity = 0.7, 800);
-                }
-            });
-            
-            // Prevenir scroll no mobile com cursor
-            if ('ontouchstart' in window) {
-                document.getElementById('customCursor').style.display = 'none';
-            }
-        };
+        // Hover effect no cursor
+        document.querySelectorAll('a, .server-card, .skill').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
     </script>
 </body>
 </html>
